@@ -13,13 +13,13 @@ const STEPS = [
   {
     icon: SparklesIcon,
     title: 'Describe what you want to build',
-    description: 'Type anything — a SaaS dashboard, e-commerce store, landing page, chat app. Luno turns your words into a working Next.js app in seconds.',
+    description: 'Type anything — a SaaS dashboard, e-commerce store, landing page, chat app. Isotope turns your words into a working Next.js app in seconds.',
     action: 'Got it',
   },
   {
     icon: CheckIcon,
     title: 'Approve the plan first',
-    description: 'Before any code is written, Luno shows you a structured plan — exactly which files will be created, the approach, and estimated time. You approve, then it builds.',
+    description: 'Before any code is written, Isotope shows you a structured plan — exactly which files will be created, the approach, and estimated time. You approve, then it builds.',
     action: 'Nice',
   },
   {
@@ -36,7 +36,7 @@ const STEPS = [
   },
 ]
 
-const ONBOARDING_KEY = 'luno_onboarding_complete'
+const ONBOARDING_KEY = 'isotope_onboarding_complete'
 
 export function Onboarding() {
   const { user, isLoaded } = useUser()

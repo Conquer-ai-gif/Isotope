@@ -188,7 +188,7 @@ export const GitHubPushButton = ({ projectId, activeFragment, repoOwner, repoNam
                 </Label>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {createRepo
-                    ? 'Luno will create a private repo on your GitHub account'
+                    ? 'Isotope will create a private repo on your GitHub account'
                     : 'The repo must already exist on GitHub'}
                 </p>
               </div>
@@ -218,7 +218,7 @@ export const GitHubPushButton = ({ projectId, activeFragment, repoOwner, repoNam
               <p className="font-medium text-foreground">What happens when you bind:</p>
               <p>✓ Your current generated code is pushed immediately</p>
               <p>✓ Every future AI generation auto-pushes to this repo</p>
-              <p>✓ Commits you push to GitHub sync back into Luno</p>
+              <p>✓ Commits you push to GitHub sync back into Isotope</p>
               <p>✓ Conflicts are surfaced in the UI for you to resolve</p>
               {process.env.NEXT_PUBLIC_VERCEL_ENABLED === 'true' && (
                 <p>✓ A Vercel project is created and linked — goes live automatically on every push</p>
@@ -278,9 +278,9 @@ export const ConflictBanner = ({ projectId }: { projectId: string }) => {
                 variant="outline"
                 className="h-6 text-xs px-2"
                 disabled={resolve.isPending}
-                onClick={() => resolve.mutate({ id: conflict.id, resolvedBy: 'luno' })}
+                onClick={() => resolve.mutate({ id: conflict.id, resolvedBy: 'isotope' })}
               >
-                Keep Luno
+                Keep Isotope
               </Button>
               <Button
                 size="sm"

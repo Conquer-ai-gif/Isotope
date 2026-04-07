@@ -64,7 +64,7 @@ export const FigmaImportButton = () => {
 
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Paste a Figma file or frame URL. Luno will read the design and generate matching Next.js code.
+            Paste a Figma file or frame URL. Isotope will read the design and generate matching Next.js code.
           </p>
 
           <div className="space-y-1.5">

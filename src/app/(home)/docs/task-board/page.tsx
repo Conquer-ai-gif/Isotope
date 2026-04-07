@@ -38,7 +38,7 @@ export default function TaskBoardPage() {
         <h2 className="text-lg font-semibold">Overview</h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
           Every project has a Task Board accessible via the <strong>Tasks tab</strong> (the kanban icon) in the project view.
-          It gives you four columns to track work across your team or solo — without leaving Luno.
+          It gives you four columns to track work across your team or solo — without leaving Isotope.
           Tasks are project-scoped, so workspace members all see and can edit the same board.
         </p>
         <DocsCallout type="info">
@@ -90,7 +90,7 @@ export default function TaskBoardPage() {
       </div>
 
       <DocsCallout type="tip">
-        Use the Task Board to track what you're prompting Luno to build. Add a task for each feature, move it to "In Progress" when you submit the prompt, and "Done" when the generation looks good.
+        Use the Task Board to track what you're prompting Isotope to build. Add a task for each feature, move it to "In Progress" when you submit the prompt, and "Done" when the generation looks good.
       </DocsCallout>
 
       <div className="space-y-3">

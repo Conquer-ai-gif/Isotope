@@ -1,4 +1,4 @@
-# Luno — Production Launch Checklist
+# Isotope — Production Launch Checklist
 
 Work through this list top to bottom before going live.
 Every item has exact instructions — no guessing.
@@ -93,8 +93,8 @@ Follow this section first if you want to run the app on your own machine before 
 
 ```bash
 # 1. Unzip the project (or clone from your repo)
-unzip lunee_updated_4.zip -d lunee
-cd lunee
+unzip isotope_updated_4.zip -d isotope
+cd isotope
 
 # 2. Install all packages
 npm install
@@ -520,7 +520,7 @@ Both features are fully built and active automatically.
 
 ### Branch-per-Instruction
 - Activates ONLY when a GitHub repo is connected to the project
-- Every approved generation creates a branch: luno/task-name-xxxxx
+- Every approved generation creates a branch: isotope/task-name-xxxxx
 - User can merge to main or discard from the chat UI
 
 ### Migration required
@@ -545,7 +545,7 @@ Slug: (no plan metadata — default) | Price: $0
 
 - 5 credits per day, AI generation, Ask mode, GitHub sync, Version history,
   Public sharing, Referral program, Plan-First mode, Branch-per-instruction,
-  Task board, Visual Edit, "Built with Luno" badge
+  Task board, Visual Edit, "Built with Isotope" badge
 
 Cannot: hide badge, Supabase, Figma, custom domain, team workspaces
 
@@ -582,7 +582,7 @@ invite links, role-based access (Owner / Editor / Viewer)
 | Task board            | ✅   | ✅  | ✅   |
 | Visual Edit           | ✅   | ✅  | ✅   |
 | Changelog page        | ✅   | ✅  | ✅   |
-| Hide Luno badge       | ❌   | ✅  | ✅   |
+| Hide Isotope badge       | ❌   | ✅  | ✅   |
 | Supabase database     | ❌   | ✅  | ✅   |
 | Figma import          | ❌   | ✅  | ✅   |
 | Custom domain         | ❌   | ✅  | ✅   |
@@ -598,7 +598,7 @@ invite links, role-based access (Owner / Editor / Viewer)
 - [ ] Copy DSN → paste as NEXT_PUBLIC_SENTRY_DSN in Vercel
 - [ ] Settings → Auth Tokens → Create Token → paste as SENTRY_AUTH_TOKEN in Vercel
 - [ ] Set SENTRY_ORG to your org slug
-- [ ] Set SENTRY_PROJECT to: luno
+- [ ] Set SENTRY_PROJECT to: isotope
   ```bash
   npm install @sentry/nextjs
   ```
@@ -614,7 +614,7 @@ invite links, role-based access (Owner / Editor / Viewer)
 - No action needed — works out of the box
 
 ### SEO
-- [ ] Replace https://luno.app in sitemap.ts with your actual domain
+- [ ] Replace https://isotope.app in sitemap.ts with your actual domain
 - [ ] Create og-image.png (1200×630px) and place in /public/og-image.png
   - Background: #09090B | Logo center-left | Headline: "Build Apps with AI" (64px, #FAFAFA)
   - Subtitle: "Describe what you want — get a working app in seconds" (28px, #71717A)
@@ -649,7 +649,7 @@ Used for: feedback alerts to you, and changelog update emails to subscribers.
 - [ ] Resend → Domains → Add Domain → verify DNS records with your registrar
 - [ ] Update the `from` address in src/lib/email.ts:
   ```ts
-  from: 'Luno <hello@yourdomain.com>',
+  from: 'Isotope <hello@yourdomain.com>',
   ```
   Replace yourdomain.com with your verified Resend domain.
 
@@ -910,7 +910,7 @@ Each project that has Supabase connected will automatically get component dedupl
   ```sql
   CREATE EXTENSION IF NOT EXISTS vector;
 
-  CREATE TABLE IF NOT EXISTS luno_component_store (
+  CREATE TABLE IF NOT EXISTS isotope_component_store (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     project_id text NOT NULL,
     file_path text NOT NULL,
@@ -921,7 +921,7 @@ Each project that has Supabase connected will automatically get component dedupl
     UNIQUE(project_id, file_path)
   );
 
-  CREATE INDEX ON luno_component_store
+  CREATE INDEX ON isotope_component_store
     USING ivfflat (embedding vector_cosine_ops)
     WITH (lists = 100);
 
@@ -940,7 +940,7 @@ Each project that has Supabase connected will automatically get component dedupl
   LANGUAGE sql STABLE
   AS $$
     SELECT file_path, content, 1 - (embedding <=> query_embedding) AS similarity
-    FROM luno_component_store
+    FROM isotope_component_store
     WHERE project_id = match_project_id
       AND 1 - (embedding <=> query_embedding) > match_threshold
     ORDER BY embedding <=> query_embedding

@@ -42,7 +42,7 @@ export default function FeedbackPage() {
         </div>
         <h2 className="text-2xl font-bold">Thank you!</h2>
         <p className="text-muted-foreground max-w-sm">
-          Your feedback has been received. We read every submission and use it to improve Luno.
+          Your feedback has been received. We read every submission and use it to improve Isotope.
         </p>
         <Button variant="outline" onClick={() => { setDone(false); setMessage(''); setRating(0) }}>
           Submit another
@@ -54,7 +54,7 @@ export default function FeedbackPage() {
   return (
     <div className="max-w-2xl mx-auto w-full px-4 py-[8vh]">
       <div className="flex flex-col items-center gap-3 mb-10 text-center">
-        <Image src="/logo.svg" alt="Luno" width={40} height={40} className="hidden md:block" />
+        <Image src="/logo.svg" alt="Isotope" width={40} height={40} className="hidden md:block" />
         <h1 className="text-3xl font-bold">Share your feedback</h1>
         <p className="text-muted-foreground max-w-md">
           Tell us what you love, what's broken, or what you'd like to see next.

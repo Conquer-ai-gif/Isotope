@@ -24,7 +24,7 @@ export async function sendEmail({ to, subject, html }: SendEmailOptions): Promis
       'Authorization': `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      from:    'Luno Feedback <feedback@yourdomain.com>', // update to your verified Resend domain
+      from:    'Isotope Feedback <feedback@yourdomain.com>', // update to your verified Resend domain
       to:      [to],
       subject,
       html,
@@ -55,7 +55,7 @@ export function buildFeedbackEmail(data: {
   userId:    string | null
   createdAt: Date
 }): { subject: string; html: string } {
-  const subject = `[Luno Feedback] ${TYPE_LABEL[data.type] ?? data.type}`
+  const subject = `[Isotope Feedback] ${TYPE_LABEL[data.type] ?? data.type}`
 
   const html = `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">

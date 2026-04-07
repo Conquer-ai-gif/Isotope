@@ -117,7 +117,7 @@ export const ProjectHeader = ({ projectId, activeFragment }: Props) => {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm"
               className="focus-visible:ring-0 hover:bg-transparent hover:opacity-75 pl-2! max-w-[180px]">
-              <Image src="/logo.svg" alt="Luno" width={18} height={18} />
+              <Image src="/logo.svg" alt="Isotope" width={18} height={18} />
               <span className="text-sm font-medium truncate">{project.name}</span>
               <ChevronDownIcon className="flex-shrink-0" />
             </Button>
@@ -147,7 +147,7 @@ export const ProjectHeader = ({ projectId, activeFragment }: Props) => {
             {hasProAccess && (
               <DropdownMenuItem onClick={() => toggleBadge.mutate({ projectId, hide: !project.hideBadge })}>
                 <BadgeIcon />
-                <span>{project.hideBadge ? 'Show Luno badge' : 'Hide Luno badge'}</span>
+                <span>{project.hideBadge ? 'Show Isotope badge' : 'Hide Isotope badge'}</span>
               </DropdownMenuItem>
             )}
 

@@ -14,18 +14,18 @@ function verifySignature(secret: string, body: string, sig: string) {
 }
 
 function diffFiles(
-  luneeFiles: { [path: string]: string },
+  isotopeFiles: { [path: string]: string },
   githubFiles: { [path: string]: string },
 ) {
-  const conflicts: { path: string; lunee: string; github: string }[] = [];
+  const conflicts: { path: string; isotope: string; github: string }[] = [];
   const toUpdate: { [path: string]: string } = {};
 
   for (const [path, githubContent] of Object.entries(githubFiles)) {
-    const luneeContent = luneeFiles[path];
-    if (!luneeContent) {
+    const isotopeContent = isotopeFiles[path];
+    if (!isotopeContent) {
       toUpdate[path] = githubContent;
-    } else if (luneeContent !== githubContent) {
-      conflicts.push({ path, lunee: luneeContent, github: githubContent });
+    } else if (isotopeContent !== githubContent) {
+      conflicts.push({ path, isotope: isotopeContent, github: githubContent });
     }
   }
   return { toUpdate, conflicts };
@@ -86,15 +86,15 @@ export async function POST(req: NextRequest) {
   }
 
   const latestFragment = project.messages[0]?.fragment;
-  const luneeFiles = (latestFragment?.files ?? {}) as { [path: string]: string };
-  const { toUpdate, conflicts } = diffFiles(luneeFiles, githubFiles);
+  const isotopeFiles = (latestFragment?.files ?? {}) as { [path: string]: string };
+  const { toUpdate, conflicts } = diffFiles(isotopeFiles, githubFiles);
 
   if (conflicts.length > 0) {
     await prisma.syncConflict.createMany({
       data: conflicts.map((c) => ({
         projectId: project.id,
         filePath: c.path,
-        luneeContent: c.lunee,
+        isotopeContent: c.isotope,
         githubContent: c.github,
       })),
       skipDuplicates: true,
@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
   if (latestFragment && Object.keys(toUpdate).length > 0) {
     await prisma.fragment.update({
       where: { id: latestFragment.id },
-      data: { files: { ...luneeFiles, ...toUpdate } },
+      data: { files: { ...isotopeFiles, ...toUpdate } },
     });
   }
 

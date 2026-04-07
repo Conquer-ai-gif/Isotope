@@ -39,7 +39,7 @@ export function BranchManager({ fragmentId, branchName, branchMerged, projectId 
   }))
 
   const isPending = merge.isPending || discard.isPending
-  const shortBranch = branchName.replace('luno/', '')
+  const shortBranch = branchName.replace('isotope/', '')
 
   if (branchMerged) {
     return (

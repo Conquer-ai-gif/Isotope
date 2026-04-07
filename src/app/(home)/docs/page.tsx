@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Documentation',
-  description: 'Everything you need to build, deploy, and scale with Luno. Guides for AI generation, billing, GitHub sync, Vercel deploy, Supabase, Figma import, team workspaces, Visual Edit, Task Board, Changelog, and email notifications.',
+  description: 'Everything you need to build, deploy, and scale with Isotope. Guides for AI generation, billing, GitHub sync, Vercel deploy, Supabase, Figma import, team workspaces, Visual Edit, Task Board, Changelog, and email notifications.',
 }
 
 import Link from 'next/link'
@@ -15,7 +15,7 @@ import {
 const SECTIONS = [
   { label: 'AI Generation',       href: '/docs/ai-generation',       icon: SparklesIcon,    desc: 'How prompts work, tips for better results, credit costs' },
   { label: 'Billing & Credits',   href: '/docs/billing',             icon: CreditCardIcon,  desc: 'Plans, monthly resets, referrals, and what happens at zero' },
-  { label: 'GitHub Sync',         href: '/docs/github-sync',         icon: GithubIcon,      desc: 'Two-way sync, auto-push, pulling commits back into Luno' },
+  { label: 'GitHub Sync',         href: '/docs/github-sync',         icon: GithubIcon,      desc: 'Two-way sync, auto-push, pulling commits back into Isotope' },
   { label: 'Vercel Deploy',       href: '/docs/vercel-deploy',       icon: RocketIcon,      desc: 'Auto-deploy on every generation, custom domains, live URLs' },
   { label: 'Supabase Database',   href: '/docs/supabase',            icon: DatabaseIcon,    desc: 'Auto-provisioned DB per project, credentials, Pro-only' },
   { label: 'Figma Import',        href: '/docs/figma',               icon: FigmaIcon,       desc: 'Import designs, generate matching code, access token setup' },
@@ -31,9 +31,9 @@ export default function DocsPage() {
   return (
     <div className="space-y-8">
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold text-foreground">Luno Documentation</h1>
+        <h1 className="text-3xl font-bold text-foreground">Isotope Documentation</h1>
         <p className="text-muted-foreground text-lg">
-          Everything you need to build, deploy, and scale with Luno.
+          Everything you need to build, deploy, and scale with Isotope.
         </p>
       </div>
 

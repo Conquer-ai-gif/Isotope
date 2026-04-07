@@ -33,7 +33,7 @@ export default function Page() {
       {/* ── Hero ── */}
       <section className="space-y-6 py-[12vh] 2xl:py-40">
         <div className="flex flex-col items-center gap-4">
-          <Image src="/logo.svg" alt="Luno" width={52} height={52} className="hidden md:block" />
+          <Image src="/logo.svg" alt="Isotope" width={52} height={52} className="hidden md:block" />
 
           {/* Badge */}
           <div className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-primary">
@@ -42,7 +42,7 @@ export default function Page() {
           </div>
 
           <h1 className="text-3xl md:text-6xl font-bold text-center leading-tight">
-            Build something with <span className="text-primary">Luno</span>
+            Build something with <span className="text-primary">Isotope</span>
           </h1>
           <p className="text-base md:text-xl text-muted-foreground text-center max-w-xl">
             Describe what you want — get a working Next.js app in seconds.

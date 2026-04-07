@@ -43,8 +43,8 @@ function buildOpenRouterModel(modelSlug: string) {
         headers: {
           'Content-Type':  'application/json',
           'Authorization': `Bearer ${apiKey}`,
-          'HTTP-Referer':  process.env.NEXT_PUBLIC_APP_URL ?? 'https://luno.app',
-          'X-Title':       'Luno',
+          'HTTP-Referer':  process.env.NEXT_PUBLIC_APP_URL ?? 'https://isotope.app',
+          'X-Title':       'Isotope',
         },
         body: JSON.stringify({
           model:       modelSlug,

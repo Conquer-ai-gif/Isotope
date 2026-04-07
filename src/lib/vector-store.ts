@@ -11,7 +11,7 @@
 // SETUP (one-time per Supabase project — add to PRODUCTION_CHECKLIST):
 //   Run this SQL in your Supabase SQL editor:
 //   CREATE EXTENSION IF NOT EXISTS vector;
-//   CREATE TABLE IF NOT EXISTS luno_component_store (
+//   CREATE TABLE IF NOT EXISTS isotope_component_store (
 //     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 //     project_id text NOT NULL,
 //     file_path text NOT NULL,
@@ -21,7 +21,7 @@
 //     updated_at timestamptz DEFAULT now(),
 //     UNIQUE(project_id, file_path)
 //   );
-//   CREATE INDEX ON luno_component_store USING ivfflat (embedding vector_cosine_ops);
+//   CREATE INDEX ON isotope_component_store USING ivfflat (embedding vector_cosine_ops);
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { createClient } from '@supabase/supabase-js'
@@ -78,7 +78,7 @@ export async function upsertFilesToVectorStore({
     try {
       const embedding = await getEmbedding(`File: ${filePath}\n\n${content}`)
 
-      await supabase.from('luno_component_store').upsert(
+      await supabase.from('isotope_component_store').upsert(
         {
           project_id: projectId,
           file_path: filePath,

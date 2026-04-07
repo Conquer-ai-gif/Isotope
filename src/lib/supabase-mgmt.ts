@@ -1,6 +1,6 @@
 // Supabase Management API helpers
 // Docs: https://supabase.com/docs/reference/api/introduction
-// Used to auto-provision a Supabase project for each Lunee project.
+// Used to auto-provision a Supabase project for each Isotope project.
 // The generated app gets its own isolated Supabase project with auth + DB.
 
 const SUPABASE_MGMT_API = 'https://api.supabase.com/v1';

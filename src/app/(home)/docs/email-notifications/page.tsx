@@ -33,7 +33,7 @@ export default function EmailNotificationsPage() {
           <h1 className="text-2xl font-bold">Email Notifications</h1>
         </div>
         <p className="text-muted-foreground">
-          Luno sends two types of email — feedback alerts to you, and changelog notifications to subscribers.
+          Isotope sends two types of email — feedback alerts to you, and changelog notifications to subscribers.
           Both are powered by Resend.
         </p>
       </div>
@@ -63,7 +63,7 @@ export default function EmailNotificationsPage() {
           { title: 'Create an API key', description: 'Resend dashboard → API Keys → Create API Key → copy the key. Add it to .env.local and Vercel as RESEND_API_KEY.' },
           { title: 'Add your admin email', description: 'Add ADMIN_EMAIL=your@email.com to .env.local and Vercel. This is where feedback alert emails will be delivered.' },
           { title: 'Verify your sending domain', description: 'Resend → Domains → Add Domain → enter your domain → add the DNS records shown at your registrar (usually 2 TXT records and a CNAME). Verification takes a few minutes.' },
-          { title: 'Update the from address in code', description: 'Open src/lib/email.ts and change the from field to match your verified domain: \'Luno <hello@yourdomain.com>\'. The domain must match what you verified in Resend.' },
+          { title: 'Update the from address in code', description: 'Open src/lib/email.ts and change the from field to match your verified domain: \'Isotope <hello@yourdomain.com>\'. The domain must match what you verified in Resend.' },
           { title: 'Test it', description: 'Submit feedback at /feedback and confirm the alert arrives at ADMIN_EMAIL. Then subscribe to the changelog and publish a test entry — confirm the notification arrives.' },
         ]} />
       </div>
