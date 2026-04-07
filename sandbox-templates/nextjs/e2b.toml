@@ -1,0 +1,17 @@
+# This is a config for E2B sandbox template.
+# You can use template ID (cmwr0tjwqitw06r03s9i) or template name (lune-vibe-3) to create a sandbox:
+
+# Python SDK
+# from e2b import Sandbox, AsyncSandbox
+# sandbox = Sandbox.create("lune-vibe-3") # Sync sandbox
+# sandbox = await AsyncSandbox.create("lune-vibe-3") # Async sandbox
+
+# JS SDK
+# import { Sandbox } from 'e2b'
+# const sandbox = await Sandbox.create('lune-vibe-3')
+
+team_id = "285b5146-59e0-40e7-bf86-d68ff64b95b8"
+start_cmd = "/compile_page.sh"
+dockerfile = "e2b.Dockerfile"
+template_name = "lune-vibe-3"
+template_id = "cmwr0tjwqitw06r03s9i"
