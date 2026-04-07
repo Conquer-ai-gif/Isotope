@@ -216,7 +216,7 @@ export const messageRouter = createTRPCRouter({
           body: JSON.stringify({
             system_instruction: {
               parts: [{
-                text: `You are a helpful assistant for a developer using an AI app builder called Luno.
+                text: `You are a helpful assistant for a developer using an AI app builder called Isotope.
 The user has a project with the following generated files. Answer their questions about the code,
 explain how things work, suggest improvements, debug issues, or help them decide what to build next.
 Be concise and practical. Do NOT generate new code unless specifically asked.

@@ -158,7 +158,7 @@ export default function ChangelogPage() {
       <div className="space-y-3">
         <h1 className="text-3xl font-bold tracking-tight">What&apos;s New</h1>
         <p className="text-muted-foreground">
-          New features, improvements, and fixes — straight from the Luno team.
+          New features, improvements, and fixes — straight from the Isotope team.
         </p>
         <SubscribeForm />
       </div>

@@ -1,4 +1,4 @@
-# Luno
+# Isotope
 
 An AI-powered app builder. Describe what you want, get a working Next.js app — with live preview, GitHub sync, Vercel deploy, Figma import, and Supabase databases.
 
@@ -87,7 +87,7 @@ Create a webhook at: `https://your-app/api/clerk/webhook`
 Subscribe to: `user.updated`
 
 ## GitHub webhook (for inbound sync)
-When users bind a repo, Luno registers a webhook on their GitHub repo automatically pointing to `https://your-app/api/github/webhook`. No manual setup needed.
+When users bind a repo, Isotope registers a webhook on their GitHub repo automatically pointing to `https://your-app/api/github/webhook`. No manual setup needed.
 
 ## Features
 

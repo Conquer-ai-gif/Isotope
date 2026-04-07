@@ -1,9 +1,9 @@
 import { createAgent, createNetwork } from '@inngest/agent-kit'
-import { gemini } from '@inngest/agent-kit'
 import * as Sentry from '@sentry/nextjs'
 import { TASK_GRAPH_PLAN_PROMPT } from '@/prompt'
 import { retryValidatePlan } from './validation'
 import { getSandbox } from '@/sandbox/sandboxManager'
+import { openRouterModel } from '@/lib/openrouter'
 import type { TaskGraph } from '@/execution/taskGraph'
 
 export interface PlannerOptions {
@@ -65,7 +65,7 @@ export async function generateTaskGraph(options: PlannerOptions): Promise<TaskGr
       name: 'plan-agent',
       description: 'Converts a user request into a validated task graph',
       system: TASK_GRAPH_PLAN_PROMPT,
-      model: gemini({ model: 'gemini-2.0-flash' }),
+      model: openRouterModel,
     })
 
     const planNetwork = createNetwork({

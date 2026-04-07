@@ -19,27 +19,27 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://luno.app'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://isotope.app'),
   title: {
-    default: 'Luno — Build Apps with AI',
-    template: '%s | Luno',
+    default: 'Isotope — Build Apps with AI',
+    template: '%s | Isotope',
   },
   description: 'Describe what you want and get a working Next.js app in seconds. Live preview, GitHub sync, Vercel deploy, Supabase database, and Figma import — all in one AI-powered builder.',
   keywords: ['AI app builder', 'vibe coding', 'AI code generator', 'Next.js app generator', 'no-code', 'Bolt alternative', 'Lovable alternative'],
-  authors: [{ name: 'Luno' }],
-  creator: 'Luno',
+  authors: [{ name: 'Isotope' }],
+  creator: 'Isotope',
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: process.env.NEXT_PUBLIC_APP_URL || 'https://luno.app',
-    siteName: 'Luno',
-    title: 'Luno — Build Apps with AI',
+    url: process.env.NEXT_PUBLIC_APP_URL || 'https://isotope.app',
+    siteName: 'Isotope',
+    title: 'Isotope — Build Apps with AI',
     description: 'Describe what you want and get a working Next.js app in seconds. Live preview, GitHub sync, Vercel deploy, and more.',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Luno — Build Apps with AI' }],
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Isotope — Build Apps with AI' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Luno — Build Apps with AI',
+    title: 'Isotope — Build Apps with AI',
     description: 'Describe what you want and get a working Next.js app in seconds.',
     images: ['/og-image.png'],
   },

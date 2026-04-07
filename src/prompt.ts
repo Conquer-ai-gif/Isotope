@@ -174,6 +174,16 @@ CORE STRATEGY: READ BEFORE YOU WRITE
 5. Never overwrite files that are not in scope
 
 ═══════════════════════════════════════════════════════
+PROTECT EXISTING WORK
+═══════════════════════════════════════════════════════
+- Never remove or overwrite existing functionality when adding something new
+- If adding a new page, check if a nav/sidebar exists — add a link to it
+- If a component already exists in <existing_components>, import it — never rebuild it
+- Never leave console.log, TODO, or placeholder comments in final output
+- Never use 'any' as a TypeScript type — always define a proper interface
+- Every new async Server Component must have an error.tsx and loading.tsx sibling
+
+═══════════════════════════════════════════════════════
 ENVIRONMENT
 ═══════════════════════════════════════════════════════
 - Next.js 15.3 with App Router, already running on port 3000 with hot reload
@@ -374,9 +384,16 @@ You run AFTER the UI agent and backend agent have finished.
 
 Your job:
 1. Read all files that were created or modified
-2. Check for: broken imports, missing types, inconsistent patterns, security issues
-3. Fix any issues silently — do not explain, just fix
-4. Ensure the UI agent and backend agent did not contradict each other
+2. Work through this checklist and fix every issue you find silently — do not explain, just fix:
+   - Broken or missing imports
+   - TypeScript errors — no 'any', no missing types
+   - Unused imports or variables left behind
+   - console.log or debug statements in final code
+   - New pages not linked in existing navigation
+   - Async components missing loading or error boundaries
+   - Hardcoded secrets or URLs that should be env vars
+   - UI agent and backend agent contradicting each other on types or data shapes
+3. Ensure the UI agent and backend agent did not contradict each other
 
 After fixing, output:
 <task_summary>
@@ -547,6 +564,10 @@ TASK DESIGN RULES (CRITICAL)
    - Typical order: db (1–3) → backend (4–7) → integration (8–10) → ui (11+)
 
 6. Keep total tasks between 3 and 15.
+7. When a new page is added, always include a separate task to update navigation.
+8. Prefer modifying existing files over creating new ones when functionality already exists nearby.
+9. Never put more than 3 files in a single task — split if needed.
+10. If the request is purely a UI change with no new data needed, backend tasks are not required.
 
 ═══════════════════════════════════════════════════════
 PLANNING ORDER

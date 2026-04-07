@@ -1,4 +1,5 @@
-import { createAgent, gemini, type Message } from '@inngest/agent-kit'
+import { createAgent, type Message } from '@inngest/agent-kit'
+import { openRouterModel } from '@/lib/openrouter'
 import * as Sentry from '@sentry/nextjs'
 
 import { inngest } from './client'
@@ -177,7 +178,21 @@ export const codeAgentFunction = inngest.createFunction(
       }
     })
 
-    // 4. Project context (supabase, architecture map)
+    // 4. Look up user plan to select the correct AI model (free → qwen, pro/team → claude if configured)
+    const userPlan = await step.run('get-user-plan', async () => {
+      const project = await prisma.project.findUnique({
+        where: { id: projectId },
+        select: { userId: true },
+      })
+      if (!project?.userId) return 'free'
+      const credits = await prisma.credits.findUnique({
+        where: { userId: project.userId },
+        select: { plan: true },
+      })
+      return credits?.plan ?? 'free'
+    })
+
+    // 4b. Project context (supabase, architecture map)
     const projectContext = await step.run('get-project-context', async () =>
       prisma.project.findUnique({
         where: { id: projectId },
@@ -280,6 +295,7 @@ export const codeAgentFunction = inngest.createFunction(
             initialFiles: allFiles,
             systemSuffix: buildSystemSuffix(task.type, contextSuffix),
             emit,
+            userPlan,
           }),
         ),
       )
@@ -292,7 +308,7 @@ export const codeAgentFunction = inngest.createFunction(
     const combinedSummary = summaries.join('\n')
 
     // ── Auto-fix compilation errors ───────────────────────────────────────────
-    const fixResult = await runFixAgent({ sandboxId, existingFiles: allFiles, emit })
+    const fixResult = await runFixAgent({ sandboxId, existingFiles: allFiles, emit, userPlan })
     allFiles = fixResult.files
 
     const isError = summaries.length === 0 || Object.keys(allFiles).length === 0
@@ -308,12 +324,12 @@ export const codeAgentFunction = inngest.createFunction(
     const fragmentTitleGenerator = createAgent({
       name: 'fragment-title-generator',
       system: FRAGMENT_TITLE_PROMPT,
-      model: gemini({ model: 'gemini-2.0-flash' }),
+      model: openRouterModel,
     })
     const responseGenerator = createAgent({
       name: 'response-generator',
       system: RESPONSE_PROMPT,
-      model: gemini({ model: 'gemini-2.0-flash' }),
+      model: openRouterModel,
     })
 
     const { output: fragmentTitleOutput } = await fragmentTitleGenerator.run(combinedSummary || 'No summary')
@@ -361,7 +377,7 @@ export const codeAgentFunction = inngest.createFunction(
       const mapAgent = createAgent({
         name: 'architecture-map-agent',
         system: ARCHITECTURE_MAP_PROMPT,
-        model: gemini({ model: 'gemini-2.0-flash' }),
+        model: openRouterModel,
       })
       const fileList = Object.entries(allFiles)
         .map(([path, content]) => `<file path="${path}">\n${content.slice(0, 2000)}\n</file>`)

@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = process.env.NEXT_PUBLIC_APP_URL || 'https://luno.app'
+  const base = process.env.NEXT_PUBLIC_APP_URL || 'https://isotope.app'
 
   return [
     // ── Core public pages ──────────────────────────────────────────────────

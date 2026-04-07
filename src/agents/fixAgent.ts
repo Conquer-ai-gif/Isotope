@@ -3,11 +3,11 @@ import {
   createNetwork,
   createState,
 } from '@inngest/agent-kit'
-import { gemini } from '@inngest/agent-kit'
 import { PROMPT } from '@/prompt'
 import { createTools, type AgentState } from '@/tools/createTools'
 import { lastAssistantTextMessageContent } from '@/inngest/utils'
 import { getSandbox } from '@/sandbox/sandboxManager'
+import { getOpenRouterModel } from '@/lib/openrouter'
 import * as Sentry from '@sentry/nextjs'
 import type { EventEmitterFn } from '@/streaming/events'
 import { makeEvent } from '@/streaming/events'
@@ -19,6 +19,7 @@ export interface RunFixAgentOptions {
   existingFiles: Record<string, string>
   allowedFiles?: string[]
   emit?: EventEmitterFn
+  userPlan?: string
 }
 
 export interface FixAgentResult {
@@ -42,7 +43,7 @@ async function detectErrors(sandboxId: string): Promise<string> {
 }
 
 export async function runFixAgent(options: RunFixAgentOptions): Promise<FixAgentResult> {
-  const { sandboxId, existingFiles, allowedFiles, emit } = options
+  const { sandboxId, existingFiles, allowedFiles, emit, userPlan = 'free' } = options
 
   let currentFiles = { ...existingFiles }
 
@@ -75,7 +76,7 @@ Fix all errors by updating the relevant files. Do not change functionality — o
     const agent = createAgent<AgentState>({
       name: 'fix-agent',
       system: PROMPT,
-      model: gemini({ model: 'gemini-2.0-flash' }),
+      model: getOpenRouterModel(userPlan),
       tools: [tools.createOrUpdateFiles, tools.readFiles],
       lifecycle: {
         onResponse: async ({ result, network }) => {

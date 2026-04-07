@@ -22,13 +22,13 @@ export default function AiGenerationPage() {
           <SparklesIcon className="size-5 text-primary" />
           <h1 className="text-2xl font-bold">How AI Generation Works</h1>
         </div>
-        <p className="text-muted-foreground">Understand how Luno turns your descriptions into working Next.js apps.</p>
+        <p className="text-muted-foreground">Understand how Isotope turns your descriptions into working Next.js apps.</p>
       </div>
 
       <div className="space-y-4">
         <h2 className="text-lg font-semibold">How it works</h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          When you describe what you want to build, Luno sends your prompt to an AI model that generates a complete Next.js application — including pages, components, API routes, and styling. The generated app is instantly compiled and served in a live preview inside your browser.
+          When you describe what you want to build, Isotope sends your prompt to an AI model that generates a complete Next.js application — including pages, components, API routes, and styling. The generated app is instantly compiled and served in a live preview inside your browser.
         </p>
         <DocsCallout type="info">
           Every generation costs <strong>1 credit</strong>. Follow-up prompts on the same project also cost 1 credit each.
@@ -72,7 +72,7 @@ export default function AiGenerationPage() {
         <h2 className="text-lg font-semibold">Tips for better results</h2>
         <DocsSteps steps={[
           { title: 'Be specific about features', description: 'Instead of "make a website", try "build a portfolio site with a hero section, about page, project grid, and contact form".' },
-          { title: 'Mention the tech you need', description: 'If you need Stripe payments, a database, or auth — say so explicitly. Luno will wire it up.' },
+          { title: 'Mention the tech you need', description: 'If you need Stripe payments, a database, or auth — say so explicitly. Isotope will wire it up.' },
           { title: 'Describe the design', description: 'Mention colors, layout style, or reference a design system. E.g. "use a dark theme with purple accents".' },
           { title: 'Iterate with follow-up prompts', description: 'You don\'t have to get it perfect in one go. Build the base, then refine with follow-up messages in the same project.' },
         ]} />
@@ -82,7 +82,7 @@ export default function AiGenerationPage() {
       <div className="space-y-4">
         <h2 className="text-lg font-semibold">Plan-First mode</h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          Before writing any code, Luno generates a structured plan showing exactly what files will be created or modified, the technical approach, new dependencies, and an estimated time. You review the plan and either approve it to start generation or reject it to edit your prompt — no credit is consumed until you approve.
+          Before writing any code, Isotope generates a structured plan showing exactly what files will be created or modified, the technical approach, new dependencies, and an estimated time. You review the plan and either approve it to start generation or reject it to edit your prompt — no credit is consumed until you approve.
         </p>
         <DocsCallout type="tip">
           If you reject a plan your credit is automatically refunded. You only pay for generations you actually approve.
@@ -90,7 +90,7 @@ export default function AiGenerationPage() {
       </div>
 
       <DocsCallout type="tip">
-        You can attach screenshots or mockups to your prompt using the image upload button. Luno will use the image as visual reference when generating.
+        You can attach screenshots or mockups to your prompt using the image upload button. Isotope will use the image as visual reference when generating.
       </DocsCallout>
     </div>
   )

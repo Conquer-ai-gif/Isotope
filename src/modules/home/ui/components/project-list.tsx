@@ -45,7 +45,7 @@ export const ProjectsList = () => {
         {projects?.map((project) => (
           <div key={project.id} className="group relative border rounded-lg hover:border-primary/50 transition-colors">
             <Link href={`/projects/${project.id}`} className="flex items-center gap-3 p-4">
-              <Image src="/logo.svg" alt="Luno" width={32} height={32} className="object-contain flex-shrink-0" />
+              <Image src="/logo.svg" alt="Isotope" width={32} height={32} className="object-contain flex-shrink-0" />
               <div className="flex flex-col min-w-0">
                 <div className="flex items-center gap-1.5">
                   <h3 className="truncate font-medium text-sm">{project.name}</h3>

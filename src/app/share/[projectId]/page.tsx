@@ -28,9 +28,9 @@ export default async function SharePage({ params }: Props) {
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
       <header className="flex items-center gap-3 px-4 py-2.5 border-b flex-shrink-0">
-        <Image src="/logo.svg" alt="Luno" width={22} height={22} />
+        <Image src="/logo.svg" alt="Isotope" width={22} height={22} />
         <span className="font-semibold text-sm truncate">{project.name}</span>
-        <span className="text-muted-foreground text-xs hidden sm:block">· Shared via Luno</span>
+        <span className="text-muted-foreground text-xs hidden sm:block">· Shared via Isotope</span>
 
         <div className="ml-auto flex items-center gap-2">
           {/* Fork button — client component that handles auth */}
@@ -64,7 +64,7 @@ export default async function SharePage({ params }: Props) {
 
       {/* Footer */}
       <div className="border-t px-4 py-2 flex items-center justify-between text-xs text-muted-foreground flex-shrink-0">
-        <span>Built with Luno AI</span>
+        <span>Built with Isotope AI</span>
         <a href="/" className="hover:text-foreground transition-colors">Build your own →</a>
       </div>
     </div>

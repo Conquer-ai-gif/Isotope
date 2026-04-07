@@ -121,7 +121,7 @@ export default function VisualEditPage() {
         <h2 className="text-lg font-semibold">Element Picker</h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
           Use the <strong>cursor icon</strong> in the preview toolbar to activate Element Picker mode.
-          Click any element in the live preview and Luno will pre-fill your chat with a description of that element —
+          Click any element in the live preview and Isotope will pre-fill your chat with a description of that element —
           so your Visual Edit instruction targets exactly the right component.
         </p>
         <DocsCallout type="warning">

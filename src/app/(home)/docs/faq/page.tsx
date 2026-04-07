@@ -19,7 +19,7 @@ const FAQS = [
     category: 'AI Generation',
     items: [
       { q: 'How long does generation take?', a: 'Usually 30–90 seconds depending on the complexity of what you\'re building.' },
-      { q: 'Can I edit the generated code?', a: 'Yes — connect a GitHub repo and push changes. Luno will pull them back in automatically.' },
+      { q: 'Can I edit the generated code?', a: 'Yes — connect a GitHub repo and push changes. Isotope will pull them back in automatically.' },
       { q: 'Does each follow-up prompt cost a credit?', a: 'Yes — every generation (including follow-ups on the same project) costs 1 credit.' },
       { q: 'Can I attach images to prompts?', a: 'Yes — use the image upload button to attach screenshots, mockups, or designs as visual reference.' },
     ],
@@ -27,7 +27,7 @@ const FAQS = [
   {
     category: 'GitHub & Vercel',
     items: [
-      { q: 'Do I need a GitHub account?', a: 'No — GitHub sync is optional. You can use Luno without connecting GitHub.' },
+      { q: 'Do I need a GitHub account?', a: 'No — GitHub sync is optional. You can use Isotope without connecting GitHub.' },
       { q: 'Does pulling commits from GitHub cost credits?', a: 'No — only AI generations cost credits. Pulling commits is free.' },
       { q: 'Can I deploy to my own Vercel account?', a: 'Yes — add your Vercel token in Settings and all deployments go to your own Vercel account.' },
     ],
@@ -35,9 +35,9 @@ const FAQS = [
   {
     category: 'Supabase & Figma',
     items: [
-      { q: 'Is Supabase provisioning free?', a: 'Supabase itself has a free tier, but the auto-provisioning feature in Luno requires a Pro or Team plan.' },
+      { q: 'Is Supabase provisioning free?', a: 'Supabase itself has a free tier, but the auto-provisioning feature in Isotope requires a Pro or Team plan.' },
       { q: 'Can I use Figma import on the free plan?', a: 'Figma import is available to Pro and Team plan users.' },
-      { q: 'What file types can I import from Figma?', a: 'Luno works with Figma frames and components. Paste any Figma share link and it\'ll import the design.' },
+      { q: 'What file types can I import from Figma?', a: 'Isotope works with Figma frames and components. Paste any Figma share link and it\'ll import the design.' },
     ],
   },
 ]
@@ -76,7 +76,7 @@ export default function FaqPage() {
           <HelpCircleIcon className="size-5 text-primary" />
           <h1 className="text-2xl font-bold">Frequently Asked Questions</h1>
         </div>
-        <p className="text-muted-foreground">Everything you wanted to know about Luno.</p>
+        <p className="text-muted-foreground">Everything you wanted to know about Isotope.</p>
       </div>
 
       {/* Search */}

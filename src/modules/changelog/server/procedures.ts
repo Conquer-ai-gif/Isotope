@@ -98,7 +98,7 @@ export const changelogRouter = createTRPCRouter({
             View full changelog →
           </a>
           <p style="margin-top: 32px; font-size: 12px; color: #A1A1AA;">
-            You're receiving this because you subscribed to Luno product updates.
+            You're receiving this because you subscribed to Isotope product updates.
             <a href="${process.env.NEXT_PUBLIC_APP_URL}/unsubscribe" style="color: #7C3AED;">Unsubscribe</a>
           </p>
         </div>
@@ -109,7 +109,7 @@ export const changelogRouter = createTRPCRouter({
         subscribers.map(sub =>
           sendEmail({
             to:      sub.email,
-            subject: `${TYPE_EMOJI[entry.type] ?? '📝'} ${entry.title} — Luno Update`,
+            subject: `${TYPE_EMOJI[entry.type] ?? '📝'} ${entry.title} — Isotope Update`,
             html:    emailHtml,
           })
         )

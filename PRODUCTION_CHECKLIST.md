@@ -1,7 +1,66 @@
-# Luno — Production Launch Checklist
+# Isotope — Production Launch Checklist
 
 Work through this list top to bottom before going live.
 Every item has exact instructions — no guessing.
+
+---
+
+## AI MODEL CONFIGURATION
+
+### Current setup
+All users (free and paid) currently use **qwen/qwen3-coder** via OpenRouter.
+This model is free — you only need an OpenRouter account and API key.
+
+**Required env var (set in `.env.local` locally and in Vercel for production):**
+```
+OPENROUTER_API_KEY=sk-or-v1-xxxxxxxxxxxx
+```
+Get your key at: https://openrouter.ai → Sign in → Keys
+
+---
+
+### Switching paid users to Claude Sonnet (no code changes needed)
+
+When you are ready to give Pro and Team users access to Claude Sonnet:
+
+1. **Top up your OpenRouter balance** at https://openrouter.ai → Billing
+   - Claude Sonnet costs roughly $3–$15 per million tokens
+   - Each generation uses ~3–8k tokens, so $10 goes a long way
+
+2. **Flip the switch in Vercel — just one variable:**
+   - Go to your Vercel project → Settings → Environment Variables
+   - Find `PAID_USERS_GET_CLAUDE` → set value to **`true`**
+   - (If it doesn't exist yet, add it with value `true`)
+
+3. **Redeploy** — click Redeploy in Vercel (no new code needed)
+
+That's it. Free users stay on qwen forever. Pro and Team users automatically get Claude.
+
+**To go back:** Set `PAID_USERS_GET_CLAUDE` = `false` in Vercel and redeploy.
+**Both users on qwen** (default): Leave `PAID_USERS_GET_CLAUDE` unset or set to `false`.
+
+---
+
+### Increasing the free user credit limit
+
+Free users currently get **5 credits** per month (each generation costs 1 credit).
+
+To increase this:
+
+1. Open `src/lib/usage.ts`
+2. Find this block near the top:
+   ```ts
+   export const PLAN_CREDITS: Record<Plan, number> = {
+     free: 5,    // ← change this number
+     pro:  100,
+     team: 300,
+   }
+   ```
+3. Change `free: 5` to your desired number (e.g. `free: 10`)
+4. Deploy the change
+
+**Important:** Existing users keep their current balance until their next monthly reset.
+New users will receive the new limit when they sign up.
 
 ---
 
@@ -34,8 +93,8 @@ Follow this section first if you want to run the app on your own machine before 
 
 ```bash
 # 1. Unzip the project (or clone from your repo)
-unzip lunee_updated_4.zip -d lunee
-cd lunee
+unzip isotope_updated_4.zip -d isotope
+cd isotope
 
 # 2. Install all packages
 npm install
@@ -461,7 +520,7 @@ Both features are fully built and active automatically.
 
 ### Branch-per-Instruction
 - Activates ONLY when a GitHub repo is connected to the project
-- Every approved generation creates a branch: luno/task-name-xxxxx
+- Every approved generation creates a branch: isotope/task-name-xxxxx
 - User can merge to main or discard from the chat UI
 
 ### Migration required
@@ -486,7 +545,7 @@ Slug: (no plan metadata — default) | Price: $0
 
 - 5 credits per day, AI generation, Ask mode, GitHub sync, Version history,
   Public sharing, Referral program, Plan-First mode, Branch-per-instruction,
-  Task board, Visual Edit, "Built with Luno" badge
+  Task board, Visual Edit, "Built with Isotope" badge
 
 Cannot: hide badge, Supabase, Figma, custom domain, team workspaces
 
@@ -523,7 +582,7 @@ invite links, role-based access (Owner / Editor / Viewer)
 | Task board            | ✅   | ✅  | ✅   |
 | Visual Edit           | ✅   | ✅  | ✅   |
 | Changelog page        | ✅   | ✅  | ✅   |
-| Hide Luno badge       | ❌   | ✅  | ✅   |
+| Hide Isotope badge       | ❌   | ✅  | ✅   |
 | Supabase database     | ❌   | ✅  | ✅   |
 | Figma import          | ❌   | ✅  | ✅   |
 | Custom domain         | ❌   | ✅  | ✅   |
@@ -539,7 +598,7 @@ invite links, role-based access (Owner / Editor / Viewer)
 - [ ] Copy DSN → paste as NEXT_PUBLIC_SENTRY_DSN in Vercel
 - [ ] Settings → Auth Tokens → Create Token → paste as SENTRY_AUTH_TOKEN in Vercel
 - [ ] Set SENTRY_ORG to your org slug
-- [ ] Set SENTRY_PROJECT to: luno
+- [ ] Set SENTRY_PROJECT to: isotope
   ```bash
   npm install @sentry/nextjs
   ```
@@ -555,7 +614,7 @@ invite links, role-based access (Owner / Editor / Viewer)
 - No action needed — works out of the box
 
 ### SEO
-- [ ] Replace https://luno.app in sitemap.ts with your actual domain
+- [ ] Replace https://isotope.app in sitemap.ts with your actual domain
 - [ ] Create og-image.png (1200×630px) and place in /public/og-image.png
   - Background: #09090B | Logo center-left | Headline: "Build Apps with AI" (64px, #FAFAFA)
   - Subtitle: "Describe what you want — get a working app in seconds" (28px, #71717A)
@@ -590,7 +649,7 @@ Used for: feedback alerts to you, and changelog update emails to subscribers.
 - [ ] Resend → Domains → Add Domain → verify DNS records with your registrar
 - [ ] Update the `from` address in src/lib/email.ts:
   ```ts
-  from: 'Luno <hello@yourdomain.com>',
+  from: 'Isotope <hello@yourdomain.com>',
   ```
   Replace yourdomain.com with your verified Resend domain.
 
@@ -851,7 +910,7 @@ Each project that has Supabase connected will automatically get component dedupl
   ```sql
   CREATE EXTENSION IF NOT EXISTS vector;
 
-  CREATE TABLE IF NOT EXISTS luno_component_store (
+  CREATE TABLE IF NOT EXISTS isotope_component_store (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     project_id text NOT NULL,
     file_path text NOT NULL,
@@ -862,7 +921,7 @@ Each project that has Supabase connected will automatically get component dedupl
     UNIQUE(project_id, file_path)
   );
 
-  CREATE INDEX ON luno_component_store
+  CREATE INDEX ON isotope_component_store
     USING ivfflat (embedding vector_cosine_ops)
     WITH (lists = 100);
 
@@ -881,7 +940,7 @@ Each project that has Supabase connected will automatically get component dedupl
   LANGUAGE sql STABLE
   AS $$
     SELECT file_path, content, 1 - (embedding <=> query_embedding) AS similarity
-    FROM luno_component_store
+    FROM isotope_component_store
     WHERE project_id = match_project_id
       AND 1 - (embedding <=> query_embedding) > match_threshold
     ORDER BY embedding <=> query_embedding

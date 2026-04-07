@@ -17,9 +17,9 @@ export default function FigmaPage() {
         <h2 className="text-lg font-semibold">Setting up</h2>
         <DocsSteps steps={[
           { title: 'Get a Figma personal access token', description: 'Go to figma.com → Account Settings → Personal access tokens → Generate new token. You need File content (read) and Dev resources (read) scopes.' },
-          { title: 'Add token to Luno', description: 'Go to Settings in the Luno app and paste your Figma token.' },
+          { title: 'Add token to Isotope', description: 'Go to Settings in the Isotope app and paste your Figma token.' },
           { title: 'Copy a Figma frame URL', description: 'In Figma, right-click any frame → Copy link. Make sure the file is set to "Anyone with the link can view".' },
-          { title: 'Paste in Luno', description: 'On the home page click "Import from Figma", paste the URL, and Luno generates matching code.' },
+          { title: 'Paste in Isotope', description: 'On the home page click "Import from Figma", paste the URL, and Isotope generates matching code.' },
         ]} />
       </div>
 

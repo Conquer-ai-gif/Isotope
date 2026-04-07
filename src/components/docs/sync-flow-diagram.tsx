@@ -8,12 +8,12 @@ export function SyncFlowDiagram() {
       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-6 text-center">GitHub Two-Way Sync</p>
       <div className="flex items-center justify-center gap-3 flex-wrap">
 
-        {/* Luno -->  GitHub */}
+        {/* Isotope -->  GitHub */}
         <div className="flex flex-col items-center gap-2">
           <div className="size-14 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
             <SparklesIcon className="size-6 text-primary" />
           </div>
-          <span className="text-xs font-medium text-foreground">Luno</span>
+          <span className="text-xs font-medium text-foreground">Isotope</span>
         </div>
 
         <div className="flex flex-col items-center gap-1">
@@ -37,12 +37,12 @@ export function SyncFlowDiagram() {
 
       <div className="mt-6 grid grid-cols-2 gap-3">
         <div className="rounded-lg bg-green-500/5 border border-green-500/20 p-3">
-          <p className="text-xs font-semibold text-green-400 mb-1">Luno → GitHub</p>
+          <p className="text-xs font-semibold text-green-400 mb-1">Isotope → GitHub</p>
           <p className="text-xs text-muted-foreground">Every generation auto-pushes to your connected repo as a new commit</p>
         </div>
         <div className="rounded-lg bg-blue-500/5 border border-blue-500/20 p-3">
-          <p className="text-xs font-semibold text-blue-400 mb-1">GitHub → Luno</p>
-          <p className="text-xs text-muted-foreground">Commits pushed directly to GitHub are pulled back into Luno automatically</p>
+          <p className="text-xs font-semibold text-blue-400 mb-1">GitHub → Isotope</p>
+          <p className="text-xs text-muted-foreground">Commits pushed directly to GitHub are pulled back into Isotope automatically</p>
         </div>
       </div>
     </div>

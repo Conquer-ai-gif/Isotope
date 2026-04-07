@@ -10,7 +10,7 @@ import {
 } from '@inngest/agent-kit';
 import { z } from 'zod';
 
-import prisma from '@/lib/db'; // Adjusted to Source 1/3 path
+import { prisma } from '@/lib/db';
 import { FRAGMENT_TITLE_PROMPT, PROMPT, RESPONSE_PROMPT } from '@/prompt';
 import { inngest } from './client';
 import { 
@@ -52,7 +52,7 @@ export const codeAgentFunction = inngest.createFunction(
         take: 5,
       });
 
-      return messages.map((m) => ({
+      return messages.map((m: { role: string; content: string }) => ({
         type: "text" as const,
         role: m.role === "ASSISTANT" ? "assistant" as const : "user" as const,
         content: m.content,
@@ -85,8 +85,8 @@ export const codeAgentFunction = inngest.createFunction(
               try {
                 const sandbox = await getSandbox(sandboxId);
                 const result = await sandbox.commands.run(command, {
-                  onStdout: (data) => { buffers.stdout += data; },
-                  onStderr: (data) => { buffers.stderr += data; },
+                  onStdout: (data: string) => { buffers.stdout += data; },
+                  onStderr: (data: string) => { buffers.stderr += data; },
                 });
                 return result.stdout || result.stderr;
               } catch (e) {

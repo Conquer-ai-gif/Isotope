@@ -29,7 +29,7 @@ const PLANS = [
       'GitHub sync',
       'Public sharing',
       'Version history',
-      '"Built with Luno" badge',
+      '"Built with Isotope" badge',
     ],
   },
   {
@@ -42,7 +42,7 @@ const PLANS = [
     badge: 'Most popular',
     features: [
       'Everything in Free',
-      'Hide "Built with Luno" badge',
+      'Hide "Built with Isotope" badge',
       'Custom domain on deployments',
       'Supabase database per project',
       'Figma import',
@@ -76,7 +76,7 @@ const Page = () => {
       <section className="space-y-10 pt-[10vh] pb-16">
         {/* Header */}
         <div className="flex flex-col items-center gap-3">
-          <Image src="/logo.svg" alt="Luno" width={48} height={48} className="hidden md:block" />
+          <Image src="/logo.svg" alt="Isotope" width={48} height={48} className="hidden md:block" />
           <h1 className="text-3xl md:text-4xl font-bold text-center">Simple pricing</h1>
           <p className="text-muted-foreground text-center max-w-md">
             Start free. Upgrade when you need more. Cancel any time.

@@ -221,9 +221,9 @@ function buildReactPage(files: { [path: string]: string }): string {
 })();
 </script>
 
-<!-- Luno badge — removed for Pro users via CSS class on <html> -->
+<!-- Isotope badge — removed for Pro users via CSS class on <html> -->
 <style>
-  .luno-badge {
+  .isotope-badge {
     position: fixed;
     bottom: 12px;
     right: 12px;
@@ -245,17 +245,17 @@ function buildReactPage(files: { [path: string]: string }): string {
     border: 0.5px solid rgba(255,255,255,0.15);
     transition: opacity 0.2s;
   }
-  .luno-badge:hover { opacity: 0.85; }
-  .luno-badge svg { width: 12px; height: 12px; flex-shrink: 0; }
-  .hide-luno-badge .luno-badge { display: none !important; }
+  .isotope-badge:hover { opacity: 0.85; }
+  .isotope-badge svg { width: 12px; height: 12px; flex-shrink: 0; }
+  .hide-isotope-badge .isotope-badge { display: none !important; }
 </style>
-<a class="luno-badge" href="https://luno.app" target="_blank" rel="noopener noreferrer">
+<a class="isotope-badge" href="https://isotope.app" target="_blank" rel="noopener noreferrer">
   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="12" cy="12" r="10" fill="white" fill-opacity="0.15"/>
     <path d="M8 8h2v6h4v2H8V8z" fill="white"/>
     <circle cx="16" cy="8" r="1.5" fill="#A78BFA"/>
   </svg>
-  Built with Luno
+  Built with Isotope
 </a>
 </body>
 </html>`;
@@ -360,9 +360,9 @@ function errorPage(message: string): string {
 })();
 </script>
 
-<!-- Luno badge — removed for Pro users via CSS class on <html> -->
+<!-- Isotope badge — removed for Pro users via CSS class on <html> -->
 <style>
-  .luno-badge {
+  .isotope-badge {
     position: fixed;
     bottom: 12px;
     right: 12px;
@@ -384,17 +384,17 @@ function errorPage(message: string): string {
     border: 0.5px solid rgba(255,255,255,0.15);
     transition: opacity 0.2s;
   }
-  .luno-badge:hover { opacity: 0.85; }
-  .luno-badge svg { width: 12px; height: 12px; flex-shrink: 0; }
-  .hide-luno-badge .luno-badge { display: none !important; }
+  .isotope-badge:hover { opacity: 0.85; }
+  .isotope-badge svg { width: 12px; height: 12px; flex-shrink: 0; }
+  .hide-isotope-badge .isotope-badge { display: none !important; }
 </style>
-<a class="luno-badge" href="https://luno.app" target="_blank" rel="noopener noreferrer">
+<a class="isotope-badge" href="https://isotope.app" target="_blank" rel="noopener noreferrer">
   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="12" cy="12" r="10" fill="white" fill-opacity="0.15"/>
     <path d="M8 8h2v6h4v2H8V8z" fill="white"/>
     <circle cx="16" cy="8" r="1.5" fill="#A78BFA"/>
   </svg>
-  Built with Luno
+  Built with Isotope
 </a>
 </body></html>`;
 }
@@ -438,7 +438,7 @@ export async function GET(
 
   // Add hide class to <html> tag for pro users who opted out of the badge
   if (hideBadge) {
-    html = html.replace('<html', '<html class="hide-luno-badge"');
+    html = html.replace('<html', '<html class="hide-isotope-badge"');
   }
 
   return new NextResponse(html, {

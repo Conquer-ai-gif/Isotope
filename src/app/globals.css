@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Luno — True Black & Violet theme (Vercel/Linear style)
+   Isotope — True Black & Violet theme (Vercel/Linear style)
    Primary:     #7C3AED (violet-600) light / #A78BFA (violet-400) dark
    Destructive: #F43F5E (rose-500)
    Dark bg:     #09090B / #18181B (true black — zinc-950/zinc-900)
