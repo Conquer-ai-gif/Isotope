@@ -127,7 +127,7 @@ export function FeedbackWidget() {
                     ? 'Describe what happened and how to reproduce it…'
                     : type === 'feature'
                     ? 'Describe the feature you would like to see…'
-                    : 'What's on your mind?'
+                    : "What's on your mind?"
                 }
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
