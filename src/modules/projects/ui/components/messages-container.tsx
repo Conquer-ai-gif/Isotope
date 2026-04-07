@@ -62,13 +62,13 @@ export const MessagesContainer = ({
     .find((m) => m.role === 'ASSISTANT' && m.type === 'RESULT')?.id;
 
   return (
-    <div className="flex flex-col flex-1 overflow-y-auto px-4 pt-4">
+    <div>
       {messages.map((message) => (
         <MessageCard
           key={message.id}
           role={message.role}
           content={message.content}
-          createdAt={message.createdAt}
+          createdAt={message.createAt}
           fragment={message.fragment}
           isActiveFragment={activeFragment?.id === message.fragment?.id}
           onFragmentClick={(f) => setActiveFragment(f)}
@@ -96,7 +96,6 @@ export const MessagesContainer = ({
         onElementContextUsed={onElementContextUsed}
         suggestionPrompt={suggestionPrompt}
         onSuggestionUsed={onSuggestionUsed}
-        onSuggestionSelect={onSuggestionSelect}
       />
     </div>
   )
