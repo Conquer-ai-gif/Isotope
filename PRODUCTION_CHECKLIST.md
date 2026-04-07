@@ -27,17 +27,17 @@ When you are ready to give Pro and Team users access to Claude Sonnet:
    - Claude Sonnet costs roughly $3–$15 per million tokens
    - Each generation uses ~3–8k tokens, so $10 goes a long way
 
-2. **Add one environment variable in Vercel:**
+2. **Flip the switch in Vercel — just one variable:**
    - Go to your Vercel project → Settings → Environment Variables
-   - Add: `OPENROUTER_PAID_MODEL` = `anthropic/claude-sonnet-4-5`
-   - Set scope to: **Production** (and Preview if you want)
+   - Find `PAID_USERS_GET_CLAUDE` → set value to **`true`**
+   - (If it doesn't exist yet, add it with value `true`)
 
 3. **Redeploy** — click Redeploy in Vercel (no new code needed)
 
-That's it. Free users stay on qwen, Pro and Team users automatically get Claude.
+That's it. Free users stay on qwen forever. Pro and Team users automatically get Claude.
 
-**To revert:** Delete the `OPENROUTER_PAID_MODEL` variable in Vercel and redeploy.
-**To try a different paid model:** Change the value to any model slug from https://openrouter.ai/models
+**To go back:** Set `PAID_USERS_GET_CLAUDE` = `false` in Vercel and redeploy.
+**Both users on qwen** (default): Leave `PAID_USERS_GET_CLAUDE` unset or set to `false`.
 
 ---
 
