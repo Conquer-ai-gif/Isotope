@@ -333,21 +333,21 @@ export const codeAgentFunction = inngest.createFunction(
       validate: validateTask,
     })
 
+    // TaskExecutor emits generation_started, generation_completed, and generation_failed
+    // internally. We only need to catch the throw so Inngest doesn't mark the run as failed.
+    let executorFailed = false
     try {
       await executor.run()
     } catch (err) {
+      executorFailed = true
       Sentry.captureException(err, { extra: { context: 'TaskExecutor.run', projectId } })
     }
 
     const combinedSummary = summaries.join('\n')
-    const isError = summaries.length === 0 || Object.keys(allFiles).length === 0
-
-    // ── Emit terminal streaming event ─────────────────────────────────────────
-    if (isError) {
-      emit(makeEvent('generation_failed', { data: { reason: 'no summary or files produced' } }))
-    } else {
-      emit(makeEvent('generation_completed', { data: { fileCount: Object.keys(allFiles).length } }))
-    }
+    // executorFailed captures the authoritative result from TaskExecutor.
+    // We also guard against the edge case where no summary or files were produced
+    // even if the executor didn't throw (e.g. all tasks were no-ops).
+    const isError = executorFailed || summaries.length === 0 || Object.keys(allFiles).length === 0
 
     // ── Generate response title + message (no tools → safe outside step) ──────
     const fragmentTitleGenerator = createAgent({
