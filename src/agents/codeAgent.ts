@@ -4,10 +4,10 @@ import {
   createState,
   type Message,
 } from '@inngest/agent-kit'
-import { gemini } from '@inngest/agent-kit'
 import { PROMPT } from '@/prompt'
 import { createTools, type AgentState } from '@/tools/createTools'
 import { lastAssistantTextMessageContent } from '@/inngest/utils'
+import { getOpenRouterModel } from '@/lib/openrouter'
 import type { EventEmitterFn } from '@/streaming/events'
 
 export interface RunCodeAgentOptions {
@@ -18,6 +18,7 @@ export interface RunCodeAgentOptions {
   allowedFiles?: string[]
   initialFiles?: Record<string, string>
   emit?: EventEmitterFn
+  userPlan?: string
 }
 
 export interface CodeAgentResult {
@@ -26,7 +27,7 @@ export interface CodeAgentResult {
 }
 
 export async function runCodeAgent(options: RunCodeAgentOptions): Promise<CodeAgentResult> {
-  const { sandboxId, userPrompt, history, systemSuffix = '', allowedFiles, initialFiles = {}, emit } = options
+  const { sandboxId, userPrompt, history, systemSuffix = '', allowedFiles, initialFiles = {}, emit, userPlan = 'free' } = options
 
   const tools = createTools({ sandboxId, allowedFiles, emit })
   const state = createState<AgentState>(
@@ -38,7 +39,7 @@ export async function runCodeAgent(options: RunCodeAgentOptions): Promise<CodeAg
     name: 'code-agent',
     description: 'Builds and modifies Next.js applications inside the sandbox',
     system: PROMPT + systemSuffix,
-    model: gemini({ model: 'gemini-2.0-flash' }),
+    model: getOpenRouterModel(userPlan),
     tools: [tools.terminal, tools.createOrUpdateFiles, tools.readFiles],
     lifecycle: {
       onResponse: async ({ result, network }) => {

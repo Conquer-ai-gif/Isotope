@@ -5,6 +5,65 @@ Every item has exact instructions — no guessing.
 
 ---
 
+## AI MODEL CONFIGURATION
+
+### Current setup
+All users (free and paid) currently use **qwen/qwen3-coder** via OpenRouter.
+This model is free — you only need an OpenRouter account and API key.
+
+**Required env var (set in `.env.local` locally and in Vercel for production):**
+```
+OPENROUTER_API_KEY=sk-or-v1-xxxxxxxxxxxx
+```
+Get your key at: https://openrouter.ai → Sign in → Keys
+
+---
+
+### Switching paid users to Claude Sonnet (no code changes needed)
+
+When you are ready to give Pro and Team users access to Claude Sonnet:
+
+1. **Top up your OpenRouter balance** at https://openrouter.ai → Billing
+   - Claude Sonnet costs roughly $3–$15 per million tokens
+   - Each generation uses ~3–8k tokens, so $10 goes a long way
+
+2. **Add one environment variable in Vercel:**
+   - Go to your Vercel project → Settings → Environment Variables
+   - Add: `OPENROUTER_PAID_MODEL` = `anthropic/claude-sonnet-4-5`
+   - Set scope to: **Production** (and Preview if you want)
+
+3. **Redeploy** — click Redeploy in Vercel (no new code needed)
+
+That's it. Free users stay on qwen, Pro and Team users automatically get Claude.
+
+**To revert:** Delete the `OPENROUTER_PAID_MODEL` variable in Vercel and redeploy.
+**To try a different paid model:** Change the value to any model slug from https://openrouter.ai/models
+
+---
+
+### Increasing the free user credit limit
+
+Free users currently get **5 credits** per month (each generation costs 1 credit).
+
+To increase this:
+
+1. Open `src/lib/usage.ts`
+2. Find this block near the top:
+   ```ts
+   export const PLAN_CREDITS: Record<Plan, number> = {
+     free: 5,    // ← change this number
+     pro:  100,
+     team: 300,
+   }
+   ```
+3. Change `free: 5` to your desired number (e.g. `free: 10`)
+4. Deploy the change
+
+**Important:** Existing users keep their current balance until their next monthly reset.
+New users will receive the new limit when they sign up.
+
+---
+
 ## 0. LOCAL DEVELOPMENT SETUP
 
 Follow this section first if you want to run the app on your own machine before deploying.
