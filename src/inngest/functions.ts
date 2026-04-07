@@ -14,7 +14,7 @@ import {
   ARCHITECTURE_MAP_PROMPT,
 } from '@/prompt'
 
-import { getOrCreateSandbox, restoreFilesIntoSandbox } from '@/sandbox/sandboxManager'
+import { getOrCreateSandbox, restoreFilesIntoSandbox, runTsc } from '@/sandbox/sandboxManager'
 import { createDbEmitter } from '@/lib/generationEvents'
 import { makeEvent } from '@/streaming/events'
 import { figmaToTailwindConfig } from '@/lib/figma'
@@ -24,26 +24,11 @@ import { runFixAgent } from '@/agents/fixAgent'
 import { upsertFilesToVectorStore, searchSimilarComponents, formatComponentMatches } from '@/lib/vector-store'
 import { generateBranchName, smartPushToGitHub } from '@/lib/github'
 
-import type { Task } from '@/execution/taskGraph'
+import { TaskExecutor } from '@/execution/TaskExecutor'
+import type { Task, TaskGraph } from '@/execution/taskGraph'
+import type { AgentRunner, ExecutionContext } from '@/execution/TaskExecutor'
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
-
-function getExecutionWaves(tasks: Task[]): Task[][] {
-  const completed = new Set<string>()
-  const remaining = [...tasks]
-  const waves: Task[][] = []
-
-  while (remaining.length > 0) {
-    const wave = remaining.filter((t) => t.dependsOn.every((dep) => completed.has(dep)))
-    if (wave.length === 0) throw new Error('Task graph contains a circular dependency')
-    wave.sort((a, b) => a.priority - b.priority)
-    wave.forEach((t) => completed.add(t.id))
-    for (const t of wave) remaining.splice(remaining.indexOf(t), 1)
-    waves.push(wave)
-  }
-
-  return waves
-}
 
 function buildTaskPrompt(
   task: Task,
@@ -55,7 +40,7 @@ function buildTaskPrompt(
     `USER REQUEST: ${userRequest}\n\n` +
     `YOUR TASK (${task.type}): ${task.description}\n\n` +
     `ALLOWED FILES — modify only these paths:\n${task.files.map((f) => `- ${f}`).join('\n') || '(none specified — use judgment)'}\n\n` +
-    `When done output <task_summary> describing what you built.` +
+    `When done output <done/> describing what you built.` +
     contextSuffix
 
   if (imageData) {
@@ -119,7 +104,6 @@ export const codeAgentFunction = inngest.createFunction(
       )
 
       // 3. Generate Zod-validated task graph
-      //    planNetwork has maxIter:1 and no tool calls so nesting inside step is safe
       const taskGraph = await step.run('generate-task-graph', async () =>
         generateTaskGraph({ sandboxId: planSandboxId, userRequest: value }),
       )
@@ -144,9 +128,9 @@ export const codeAgentFunction = inngest.createFunction(
     // ════════════════════════════════════════════════════════════════════════════
 
     // Parse the approved task graph
-    let taskGraphData: { tasks: Task[] } = { tasks: [] }
+    let taskGraphData: TaskGraph = { tasks: [] }
     try {
-      taskGraphData = JSON.parse(existingMessage.plan ?? '{}')
+      taskGraphData = JSON.parse(existingMessage.plan ?? '{}') as TaskGraph
     } catch {
       /* fall through with empty tasks — fallback to single-agent mode below */
     }
@@ -178,7 +162,7 @@ export const codeAgentFunction = inngest.createFunction(
       }
     })
 
-    // 4. Look up user plan to select the correct AI model (free → qwen, pro/team → claude if configured)
+    // 4. Look up user plan to select the correct AI model
     const userPlan = await step.run('get-user-plan', async () => {
       const project = await prisma.project.findUnique({
         where: { id: projectId },
@@ -200,7 +184,7 @@ export const codeAgentFunction = inngest.createFunction(
       }),
     )
 
-    // 4. Conversation history (last 6 messages, older ones summarized)
+    // 5. Conversation history (last 6 messages, older ones summarized)
     const previousMessages = await step.run('get-previous-messages', async () => {
       const all = await prisma.message.findMany({
         where: { projectId },
@@ -229,7 +213,7 @@ export const codeAgentFunction = inngest.createFunction(
       }))
     })
 
-    // 5. Similar components from vector store (if supabase configured)
+    // 6. Similar components from vector store (if supabase configured)
     const similarComponents = await step.run('search-components-for-coding', async () => {
       if (!projectContext?.supabaseUrl || !projectContext?.supabaseAnonKey) return ''
       try {
@@ -245,10 +229,10 @@ export const codeAgentFunction = inngest.createFunction(
       }
     })
 
-    // 6. Build shared context suffix
+    // 7. Build shared context suffix
     const supabaseCtx = (() => {
-      const url = projectContext?.supabaseUrl ?? (event.data as any).supabaseUrl
-      const key = projectContext?.supabaseAnonKey ?? (event.data as any).supabaseAnonKey
+      const url = projectContext?.supabaseUrl ?? (event.data as Record<string, string>).supabaseUrl
+      const key = projectContext?.supabaseAnonKey ?? (event.data as Record<string, string>).supabaseAnonKey
       if (!url || !key) return ''
       return `\n\nSupabase is available:\n- NEXT_PUBLIC_SUPABASE_URL="${url}"\n- NEXT_PUBLIC_SUPABASE_ANON_KEY="${key}"\nUse @supabase/supabase-js. Install with terminal if needed.`
     })()
@@ -259,7 +243,7 @@ export const codeAgentFunction = inngest.createFunction(
 
     const contextSuffix = supabaseCtx + archCtx + (similarComponents ?? '')
 
-    // 7. Parse image attachment
+    // 8. Parse image attachment
     let imageData: { mimeType: string; base64: string } | undefined
     if (imageUrl) {
       const match = imageUrl.match(/^data:([^;]+);base64,(.+)$/)
@@ -267,58 +251,103 @@ export const codeAgentFunction = inngest.createFunction(
     }
 
     // ── Set up real-time event emitter ───────────────────────────────────────
-    // Writes events to GenerationEvent table; polled by /api/generation/stream
     const emit = createDbEmitter(messageId)
 
-    // ── Execute task graph in dependency-ordered waves ────────────────────────
+    // ── Shared mutable state (captured by closures below) ────────────────────
     // NOTE: network.run() + tool steps must remain OUTSIDE step.run().
-    //       Agent Kit's tool handler receives its own step context (toolStep)
-    //       which conflicts with Inngest's outer step.run() context.
-
-    emit(makeEvent('generation_started', { data: { taskCount: tasks.length } }))
-
-    const waves = tasks.length > 0
-      ? getExecutionWaves(tasks)
-      : [[{ id: 'task_1', type: 'ui' as const, description: value, files: [], dependsOn: [], priority: 1 }]]
+    // Agent Kit's tool handler receives its own step context (toolStep)
+    // which conflicts with Inngest's outer step.run() context.
 
     let allFiles: Record<string, string> = {}
     const summaries: string[] = []
 
-    for (const wave of waves) {
-      const waveResults = await Promise.all(
-        wave.map((task) =>
-          runCodeAgent({
-            sandboxId,
-            userPrompt: buildTaskPrompt(task, value, imageData, contextSuffix),
-            history: previousMessages as unknown as Message[],
-            allowedFiles: task.files.length > 0 ? task.files : undefined,
-            initialFiles: allFiles,
-            systemSuffix: buildSystemSuffix(task.type, contextSuffix),
-            emit,
-            userPlan,
-          }),
-        ),
-      )
-      for (const r of waveResults) {
-        allFiles = { ...allFiles, ...r.files }
-        if (r.summary) summaries.push(r.summary)
-      }
+    // ── Build the AgentRunner used by TaskExecutor ────────────────────────────
+    // One runner handles all task types — the system suffix is varied by type.
+    const makeRunner = (): AgentRunner => ({
+      async run(task: Task, ctx: ExecutionContext): Promise<void> {
+        const result = await runCodeAgent({
+          sandboxId: ctx.sandboxId,
+          userPrompt: buildTaskPrompt(task, value, imageData, contextSuffix),
+          history: previousMessages as unknown as Message[],
+          allowedFiles: task.files.length > 0 ? task.files : undefined,
+          initialFiles: allFiles,
+          systemSuffix: buildSystemSuffix(task.type, contextSuffix),
+          emit: ctx.emit,
+          userPlan,
+        })
+
+        allFiles = { ...allFiles, ...result.files }
+        if (result.summary) summaries.push(result.summary)
+      },
+    })
+
+    // ── Per-task TypeScript validation ────────────────────────────────────────
+    // Runs after every task completes. Only checks the files that task owned.
+    // If errors are found, the fix agent is scoped to those files only.
+    const validateTask = async (task: Task, ctx: ExecutionContext): Promise<void> => {
+      if (task.files.length === 0) return
+
+      const errors = await runTsc(ctx.sandboxId, task.files)
+      if (!errors) return
+
+      emit(makeEvent('validation_failed', { taskId: task.id, data: { errors: errors.slice(0, 300) } }))
+
+      const fixResult = await runFixAgent({
+        sandboxId: ctx.sandboxId,
+        existingFiles: allFiles,
+        failingFiles: task.files,
+        emit: ctx.emit,
+        userPlan,
+      })
+
+      allFiles = { ...allFiles, ...fixResult.files }
+
+      emit(makeEvent('fix_completed', { taskId: task.id }))
+    }
+
+    // ── Execute via TaskExecutor ──────────────────────────────────────────────
+    const execContext: ExecutionContext = { sandboxId, tools: {}, emit }
+
+    const taskGraphToRun: TaskGraph = tasks.length > 0
+      ? taskGraphData
+      : {
+          tasks: [{
+            id: 'task_1',
+            type: 'ui',
+            description: value,
+            files: [],
+            dependsOn: [],
+            priority: 1,
+          }],
+        }
+
+    const runner = makeRunner()
+    const executor = new TaskExecutor(taskGraphToRun, execContext, {
+      maxRetries: 3,
+      agents: {
+        ui: runner,
+        backend: runner,
+        db: runner,
+        integration: runner,
+      },
+      validate: validateTask,
+    })
+
+    // TaskExecutor emits generation_started, generation_completed, and generation_failed
+    // internally. We only need to catch the throw so Inngest doesn't mark the run as failed.
+    let executorFailed = false
+    try {
+      await executor.run()
+    } catch (err) {
+      executorFailed = true
+      Sentry.captureException(err, { extra: { context: 'TaskExecutor.run', projectId } })
     }
 
     const combinedSummary = summaries.join('\n')
-
-    // ── Auto-fix compilation errors ───────────────────────────────────────────
-    const fixResult = await runFixAgent({ sandboxId, existingFiles: allFiles, emit, userPlan })
-    allFiles = fixResult.files
-
-    const isError = summaries.length === 0 || Object.keys(allFiles).length === 0
-
-    // ── Emit terminal streaming event ─────────────────────────────────────────
-    emit(
-      isError
-        ? makeEvent('generation_failed', { data: { reason: 'no summary or files produced' } })
-        : makeEvent('generation_completed', { data: { fileCount: Object.keys(allFiles).length } }),
-    )
+    // executorFailed captures the authoritative result from TaskExecutor.
+    // We also guard against the edge case where no summary or files were produced
+    // even if the executor didn't throw (e.g. all tasks were no-ops).
+    const isError = executorFailed || summaries.length === 0 || Object.keys(allFiles).length === 0
 
     // ── Generate response title + message (no tools → safe outside step) ──────
     const fragmentTitleGenerator = createAgent({

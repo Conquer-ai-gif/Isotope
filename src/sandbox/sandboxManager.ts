@@ -77,3 +77,40 @@ export async function restoreFilesIntoSandbox(
 
   return { restoredCount: entries.length }
 }
+
+/**
+ * Run TypeScript type-checking inside the sandbox.
+ *
+ * When `files` is provided, only errors from those paths are returned.
+ * When `files` is empty, all TypeScript errors are returned.
+ *
+ * Returns an empty string when there are no errors.
+ */
+export async function runTsc(sandboxId: string, files: string[] = []): Promise<string> {
+  try {
+    const sandbox = await getSandbox(sandboxId)
+
+    const result = await sandbox.commands.run(
+      'npx tsc --noEmit 2>&1 | head -60 || true',
+      { timeout: 30000 },
+    )
+
+    const output = result.stdout.trim()
+    if (!output) return ''
+
+    if (files.length === 0) return output
+
+    // TypeScript error lines start with the file path, e.g.:
+    //   src/components/foo.tsx(10,5): error TS2339: Property 'x' does not exist
+    // Keep only lines that reference one of the task's files.
+    const relevant = output
+      .split('\n')
+      .filter((line) => files.some((f) => line.includes(f)))
+      .join('\n')
+      .trim()
+
+    return relevant
+  } catch {
+    return ''
+  }
+}
