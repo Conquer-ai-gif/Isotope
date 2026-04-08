@@ -59,23 +59,65 @@ export async function getSandbox(sandboxId: string): Promise<Sandbox> {
 export async function restoreFilesIntoSandbox(
   projectId: string,
   sandboxId: string,
-): Promise<{ restoredCount: number }> {
+): Promise<{ restoredCount: number; files: Record<string, string> }> {
+  // ── Priority 1: restore from the last Isotope-generated fragment ─────────
   const lastFragment = await prisma.fragment.findFirst({
     where: { message: { projectId } },
     orderBy: { createAt: 'desc' },
   })
 
-  if (!lastFragment?.files) return { restoredCount: 0 }
+  if (lastFragment?.files) {
+    const files = lastFragment.files as Record<string, string>
+    const entries = Object.entries(files).filter(([, v]) => typeof v === 'string')
+    const fileMap = Object.fromEntries(entries)
 
-  const files = lastFragment.files as Record<string, string>
-  const entries = Object.entries(files).filter(([, v]) => typeof v === 'string')
+    const sandbox = await getSandbox(sandboxId)
+    for (const [path, content] of entries) {
+      await sandbox.files.write(path, content)
+    }
 
-  const sandbox = await getSandbox(sandboxId)
-  for (const [path, content] of entries) {
-    await sandbox.files.write(path, content)
+    return { restoredCount: entries.length, files: fileMap }
   }
 
-  return { restoredCount: entries.length }
+  // ── Priority 2: no prior generation — seed from connected GitHub repo ────
+  // This runs the first time a user generates for a project that already has
+  // a GitHub repo connected. The agent starts with the real existing codebase
+  // instead of a blank sandbox.
+  try {
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      select: { repoOwner: true, repoName: true, userId: true },
+    })
+
+    if (!project?.repoOwner || !project?.repoName) {
+      return { restoredCount: 0, files: {} }
+    }
+
+    const { getGitHubToken } = await import('@/lib/github-token')
+    const { getRepoFiles } = await import('@/lib/github')
+
+    const tokenRecord = await getGitHubToken(project.userId)
+    if (!tokenRecord?.accessToken) return { restoredCount: 0, files: {} }
+
+    const repoFiles = await getRepoFiles({
+      accessToken: tokenRecord.accessToken,
+      owner: project.repoOwner,
+      repo: project.repoName,
+    })
+
+    const entries = Object.entries(repoFiles).filter(([, v]) => typeof v === 'string')
+    if (entries.length === 0) return { restoredCount: 0, files: {} }
+
+    const sandbox = await getSandbox(sandboxId)
+    for (const [path, content] of entries) {
+      await sandbox.files.write(path, content)
+    }
+
+    return { restoredCount: entries.length, files: repoFiles }
+  } catch (err) {
+    Sentry.captureException(err, { extra: { context: 'restoreFilesIntoSandbox-github-seed', projectId } })
+    return { restoredCount: 0, files: {} }
+  }
 }
 
 /**
