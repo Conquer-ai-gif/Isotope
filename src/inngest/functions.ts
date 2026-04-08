@@ -40,7 +40,7 @@ function buildTaskPrompt(
     `USER REQUEST: ${userRequest}\n\n` +
     `YOUR TASK (${task.type}): ${task.description}\n\n` +
     `ALLOWED FILES — modify only these paths:\n${task.files.map((f) => `- ${f}`).join('\n') || '(none specified — use judgment)'}\n\n` +
-    `When done output <done/> describing what you built.` +
+    `When done, output <done/> on its own line, then one sentence describing what you built.` +
     contextSuffix
 
   if (imageData) {
@@ -142,8 +142,8 @@ export const codeAgentFunction = inngest.createFunction(
       return id
     })
 
-    // 2. Restore files
-    await step.run('exec-restore-files', async () =>
+    // 2. Restore files (from last fragment OR seed from connected GitHub repo)
+    const restoredFiles = await step.run('exec-restore-files', async () =>
       restoreFilesIntoSandbox(projectId, sandboxId),
     )
 
@@ -258,7 +258,9 @@ export const codeAgentFunction = inngest.createFunction(
     // Agent Kit's tool handler receives its own step context (toolStep)
     // which conflicts with Inngest's outer step.run() context.
 
-    let allFiles: Record<string, string> = {}
+    // Start with restored files — the agent sees the full existing codebase
+    // from the start, whether that's a prior generation or a seeded GitHub repo.
+    let allFiles: Record<string, string> = restoredFiles.files ?? {}
     const summaries: string[] = []
 
     // ── Build the AgentRunner used by TaskExecutor ────────────────────────────
@@ -343,7 +345,9 @@ export const codeAgentFunction = inngest.createFunction(
       Sentry.captureException(err, { extra: { context: 'TaskExecutor.run', projectId } })
     }
 
-    const combinedSummary = summaries.join('\n')
+    const combinedSummary = summaries
+      .map((s) => s.replace('<done/>', '').trim())
+      .join('\n')
     // executorFailed captures the authoritative result from TaskExecutor.
     // We also guard against the edge case where no summary or files were produced
     // even if the executor didn't throw (e.g. all tasks were no-ops).

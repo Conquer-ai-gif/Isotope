@@ -535,6 +535,46 @@ npx prisma migrate dev --name plan-first-and-branches
 - [ ] Connect a GitHub repo → generate → confirm branch appears in fragment card
 - [ ] Click Merge → confirm branch merges to main in GitHub
 - [ ] Click Discard → confirm branch is deleted in GitHub
+---
+
+## 12b. GITHUB REPO SEEDING (automatic — no setup needed)
+
+This feature is active automatically once a GitHub repo is connected to a project.
+
+### What it does
+When a user connects an existing GitHub repo to a project and generates for the
+**first time**, Isotope reads the repo's current files and loads them into the
+sandbox before the AI agent runs. The agent sees the real existing codebase
+and makes targeted changes — instead of starting from scratch.
+
+On every **subsequent** generation, the agent restores from the last Isotope-generated
+fragment (the existing behaviour). GitHub seeding only runs on the very first generation.
+
+### How it works (no action needed from you)
+1. User connects their GitHub repo in the project settings
+2. User types a prompt and approves the plan
+3. During the `exec-restore-files` step, Isotope checks: is there a previous fragment?
+   - Yes → restore from that fragment (normal flow)
+   - No → read all files from the connected GitHub repo via the GitHub API and write them into the sandbox
+4. The agent runs with the full repo codebase already present
+
+### Requirements (already covered by earlier sections)
+- GitHub OAuth must be enabled in Clerk with the `repo` scope (Section 4c)
+- User must have connected their GitHub account via Clerk OAuth
+- User must have linked a GitHub repo to their project via the project settings
+
+### Post-launch check
+- [ ] Connect an existing GitHub repo to a new project (one with no generations yet)
+- [ ] Type a prompt (e.g. "add a dark mode toggle")
+- [ ] Approve the plan → watch the Inngest run at http://localhost:8288
+- [ ] In the `exec-restore-files` step, confirm the log shows files restored from GitHub (not 0)
+- [ ] Confirm the generated output modifies your existing components — not a blank new project
+
+### Files changed
+- `src/sandbox/sandboxManager.ts` → `restoreFilesIntoSandbox()` now falls back to GitHub seeding
+- `src/inngest/functions.ts` → `allFiles` is now pre-populated from the restore step
+
+
 
 ---
 
