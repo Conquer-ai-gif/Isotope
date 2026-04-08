@@ -40,7 +40,7 @@ function buildTaskPrompt(
     `USER REQUEST: ${userRequest}\n\n` +
     `YOUR TASK (${task.type}): ${task.description}\n\n` +
     `ALLOWED FILES — modify only these paths:\n${task.files.map((f) => `- ${f}`).join('\n') || '(none specified — use judgment)'}\n\n` +
-    `When done output <done/> describing what you built.` +
+    `When done, output <done/> on its own line, then one sentence describing what you built.` +
     contextSuffix
 
   if (imageData) {
@@ -345,7 +345,9 @@ export const codeAgentFunction = inngest.createFunction(
       Sentry.captureException(err, { extra: { context: 'TaskExecutor.run', projectId } })
     }
 
-    const combinedSummary = summaries.join('\n')
+    const combinedSummary = summaries
+      .map((s) => s.replace('<done/>', '').trim())
+      .join('\n')
     // executorFailed captures the authoritative result from TaskExecutor.
     // We also guard against the edge case where no summary or files were produced
     // even if the executor didn't throw (e.g. all tasks were no-ops).
