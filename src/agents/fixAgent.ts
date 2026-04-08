@@ -90,7 +90,7 @@ export async function runFixAgent(options: RunFixAgentOptions): Promise<FixAgent
       ? `\n\nFocus ONLY on these files:\n${failingFiles.map((f) => `- ${f}`).join('\n')}\n`
       : ''
 
-    const fixPrompt = `The app has compilation errors. Fix them silently — do NOT explain, just fix and output <done/> when done.${scopeNote}
+    const fixPrompt = `The app has compilation errors. Fix them silently — do NOT explain, just fix and output <task_summary>brief description of what was fixed</task_summary> when done.${scopeNote}
 Errors:
 ${errors.slice(0, 2000)}
 
@@ -104,7 +104,7 @@ Fix all errors by updating the relevant files. Do not change functionality — o
       lifecycle: {
         onResponse: async ({ result, network }) => {
           const lastMsg = lastAssistantTextMessageContent(result)
-          if (lastMsg && network && lastMsg.includes('<done/>')) {
+          if (lastMsg && network && lastMsg.includes('<task_summary>')) {
             network.state.data.summary = lastMsg
           }
           return result
