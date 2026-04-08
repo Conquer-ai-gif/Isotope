@@ -142,8 +142,8 @@ export const codeAgentFunction = inngest.createFunction(
       return id
     })
 
-    // 2. Restore files
-    await step.run('exec-restore-files', async () =>
+    // 2. Restore files (from last fragment OR seed from connected GitHub repo)
+    const restoredFiles = await step.run('exec-restore-files', async () =>
       restoreFilesIntoSandbox(projectId, sandboxId),
     )
 
@@ -258,7 +258,9 @@ export const codeAgentFunction = inngest.createFunction(
     // Agent Kit's tool handler receives its own step context (toolStep)
     // which conflicts with Inngest's outer step.run() context.
 
-    let allFiles: Record<string, string> = {}
+    // Start with restored files — the agent sees the full existing codebase
+    // from the start, whether that's a prior generation or a seeded GitHub repo.
+    let allFiles: Record<string, string> = restoredFiles.files ?? {}
     const summaries: string[] = []
 
     // ── Build the AgentRunner used by TaskExecutor ────────────────────────────
