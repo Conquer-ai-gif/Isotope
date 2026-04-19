@@ -103,3 +103,7 @@ When users bind a repo, Isotope registers a webhook on their GitHub repo automat
 - **Project management** — rename, delete, public sharing, shareable links
 - **Mobile layout** — full chat + preview on mobile
 - **Clerk billing** — free tier (5 credits) + pro tier (100 credits)
+
+REAL ENV
+
+DATABASE_URL="postgresql://neondb_owner:npg_klUDAOTNP6x8@ep-nameless-sunset-a4be413g-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require" 

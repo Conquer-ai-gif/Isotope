@@ -1023,3 +1023,52 @@ FIGMA_ACCESS_TOKEN           figma.com → Account Settings → Personal Access 
 FIGMA_FILE_KEY               figma.com/file/[THIS_PART]/your-file-name
 ```
 
+FOLDER STRUCTURE FOR MODULES/PROJECTS/SERVER/PROCEDURE.TS
+src/server/
+  trpc/
+    routers/
+      projects/
+        index.ts
+        crud.ts
+        github.ts
+        vercel.ts
+        supabase.ts
+        figma.ts
+        domains.ts
+        conflicts.ts
+        index.ts   (main router)
+
+        WHAT SHOULD BE IN THE  index.ts   (main router)
+
+        import { createTRPCRouter } from '@/trpc/init'
+
+import { projectsCrudRouter } from './crud'
+import { projectsGithubRouter } from './github'
+import { projectsVercelRouter } from './vercel'
+import { projectsSupabaseRouter } from './supabase'
+import { projectsFigmaRouter } from './figma'
+import { projectsDomainRouter } from './domains'
+import { projectsConflictRouter } from './conflicts'
+
+export const projectsRouter = createTRPCRouter({
+  ...projectsCrudRouter,
+  ...projectsGithubRouter,
+  ...projectsVercelRouter,
+  ...projectsSupabaseRouter,
+  ...projectsFigmaRouter,
+  ...projectsDomainRouter,
+  ...projectsConflictRouter,
+})
+
+
+GITHUB PUSH AARCHECTURE
+
+generate code
+   ↓
+push to GitHub branch
+   ↓
+merge branch → main
+   ↓
+pull latest main
+   ↓
+update Isotope DB + sandbox

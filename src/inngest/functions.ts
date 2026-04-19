@@ -1,5 +1,5 @@
 import { createAgent, type Message } from '@inngest/agent-kit'
-import { openRouterModel } from '@/lib/openrouter'
+import { getOpenRouterModel } from '@/lib/openrouter'
 import * as Sentry from '@sentry/nextjs'
 
 import { inngest } from './client'
@@ -204,14 +204,14 @@ export const codeAgentFunction = inngest.createFunction(
     const previousMessages = await step.run('get-previous-messages', async () => {
       const all = await prisma.message.findMany({
         where: { projectId },
-        orderBy: { createAt: 'asc' },
+        orderBy: { createdAt: 'asc' },
       })
       if (all.length > 8) {
         const old = all.slice(0, all.length - 6)
         const recent = all.slice(all.length - 6)
         const summary = old
-          .filter((m) => m.role === 'ASSISTANT' && m.content.length > 10)
-          .map((m) => m.content.slice(0, 200))
+          .filter((m: { role: string; content: string }) => m.role === 'ASSISTANT' && m.content.length > 10)
+          .map((m: { content: string }) => m.content.slice(0, 200))
           .join(' | ')
         const formatted: { type: string; role: string; content: string }[] = []
         if (summary) {
@@ -222,7 +222,7 @@ export const codeAgentFunction = inngest.createFunction(
         }
         return formatted
       }
-      return all.map((m) => ({
+      return all.map((m: { role: string; content: string }) => ({
         type: 'text',
         role: m.role === 'ASSISTANT' ? 'assistant' : 'user',
         content: m.content,
@@ -324,12 +324,12 @@ export const codeAgentFunction = inngest.createFunction(
     const fragmentTitleGenerator = createAgent({
       name: 'fragment-title-generator',
       system: FRAGMENT_TITLE_PROMPT,
-      model: openRouterModel,
+      model: getOpenRouterModel('free'),
     })
     const responseGenerator = createAgent({
       name: 'response-generator',
       system: RESPONSE_PROMPT,
-      model: openRouterModel,
+      model: getOpenRouterModel('free'),
     })
 
     const { output: fragmentTitleOutput } = await fragmentTitleGenerator.run(combinedSummary || 'No summary')
@@ -377,15 +377,15 @@ export const codeAgentFunction = inngest.createFunction(
       const mapAgent = createAgent({
         name: 'architecture-map-agent',
         system: ARCHITECTURE_MAP_PROMPT,
-        model: openRouterModel,
+        model: getOpenRouterModel('free'),
       })
       const fileList = Object.entries(allFiles)
         .map(([path, content]) => `<file path="${path}">\n${content.slice(0, 2000)}\n</file>`)
         .join('\n')
       const { output: mapOutput } = await mapAgent.run(`<files>\n${fileList}\n</files>`)
       const mapText = mapOutput
-        .filter((m: { type: string }) => m.type === 'text')
-        .map((m: { content: string | Array<{ text: string }> }) =>
+        .filter((m: Message) => m.type === 'text')
+        .map((m: Message) =>
           Array.isArray(m.content) ? m.content.map((c) => c.text).join('') : m.content,
         )
         .join('')
@@ -440,7 +440,7 @@ export const codeAgentFunction = inngest.createFunction(
         if (pushResult.filesChanged === 0) return 'skipped: no files changed'
         const latestMsg = await prisma.message.findFirst({
           where: { projectId, role: 'ASSISTANT', type: 'RESULT' },
-          orderBy: { createAt: 'desc' },
+          orderBy: { createdAt: 'desc' },
           include: { fragment: true },
         })
         if (latestMsg?.fragment) {
@@ -467,7 +467,7 @@ export const codeAgentFunction = inngest.createFunction(
         await prisma.project.update({ where: { id: project.id }, data: { vercelDeployUrl: deployUrl } })
         const latestMsg = await prisma.message.findFirst({
           where: { projectId, role: 'ASSISTANT', type: 'RESULT' },
-          orderBy: { createAt: 'desc' },
+          orderBy: { createdAt: 'desc' },
           include: { fragment: true },
         })
         if (latestMsg?.fragment) {

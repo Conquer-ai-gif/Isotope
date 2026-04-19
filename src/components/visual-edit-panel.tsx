@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { useMutation } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
 import { useTRPC } from '@/trpc/client'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -28,6 +29,7 @@ const EDIT_MODES: { id: EditMode; label: string; icon: React.ElementType; hint: 
 
 export function VisualEditPanel({ projectId, messageId }: VisualEditProps) {
   const trpc = useTRPC()
+  const router = useRouter()
   const [open, setOpen]         = useState(false)
   const [mode, setMode]         = useState<EditMode>('color')
   const [instruction, setInstruction] = useState('')
@@ -39,7 +41,13 @@ export function VisualEditPanel({ projectId, messageId }: VisualEditProps) {
       setInstruction('')
       setOpen(false)
     },
-    onError: (e) => toast.error(e.message),
+    onError: (e) => {
+      if (e?.message?.includes('run out of credits') || e?.data?.code === 'TOO_MANY_REQUESTS') {
+        router.push('/pricing')
+      } else {
+        toast.error(e.message)
+      }
+    },
   }))
 
   function handleSubmit() {

@@ -10,6 +10,9 @@ import { getOctokit, pushFragmentToGitHub, registerGitHubWebhook, deleteGitHubWe
 import { parseFigmaUrl, figmaToPrompt } from '@/lib/figma';
 import { createSupabaseProject, deleteSupabaseProject, getSupabaseOrganizationId } from '@/lib/supabase-mgmt';
 
+import { createVercelProject, deleteVercelProject, getLatestDeployUrl, addCustomDomain, removeCustomDomain, getDomainStatus } from '@/lib/vercel';
+import crypto from 'crypto';
+
 // ── Plan gate helper ──────────────────────────────────────────────────────────
 async function requirePaidPlan(userId: string): Promise<void> {
   const { getUsageStatus } = await import('@/lib/usage')
@@ -22,9 +25,6 @@ async function requirePaidPlan(userId: string): Promise<void> {
   }
 }
 
-
-import { createVercelProject, deleteVercelProject, getLatestDeployUrl, addCustomDomain, removeCustomDomain, getDomainStatus } from '@/lib/vercel';
-import crypto from 'crypto';
 
 export const projectsRouter = createTRPCRouter({
 
@@ -59,7 +59,7 @@ export const projectsRouter = createTRPCRouter({
 
   create: protectedProcedure
     .input(z.object({
-      value: z.string().min(1).max(1000),
+      value: z.string().min(1).max(10000),
       workspaceId: z.string().optional(),
     }))
     .mutation(async ({ input, ctx }) => {
@@ -79,9 +79,12 @@ export const projectsRouter = createTRPCRouter({
         await consumeCredits(ownerUserId);
       } catch (error) {
         if (error instanceof Error) {
-          throw new TRPCError({ code: 'BAD_REQUEST', message: 'Something went wrong' });
+          if (error.message.includes('Insufficient credits')) {
+            throw new TRPCError({ code: 'TOO_MANY_REQUESTS', message: 'You have run out of credits' });
+          }
+          throw new TRPCError({ code: 'BAD_REQUEST', message: error.message || 'Failed to consume credits' });
         } else {
-          throw new TRPCError({ code: 'TOO_MANY_REQUESTS', message: 'You have run out of credits' });
+          throw new TRPCError({ code: 'BAD_REQUEST', message: 'Something went wrong' });
         }
       }
       const createdProject = await prisma.project.create({
@@ -122,13 +125,17 @@ export const projectsRouter = createTRPCRouter({
             owner: project.repoOwner,
             repo: project.repoName,
             hookId: project.repoWebhookId,
-          }).catch(() => {});
+          }).catch((e) => {
+            console.error(`Failed to delete GitHub webhook for project ${input.id}:`, e);
+          });
         }
       }
 
       // Clean up Vercel project
       if (project.vercelProjectId) {
-        await deleteVercelProject(project.vercelProjectId).catch(() => {});
+        await deleteVercelProject(project.vercelProjectId).catch((e) => {
+          console.error(`Failed to delete Vercel project ${project.vercelProjectId} for project ${input.id}:`, e);
+        });
       }
 
       await prisma.project.delete({ where: { id: input.id } });
@@ -151,7 +158,7 @@ export const projectsRouter = createTRPCRouter({
         include: {
           messages: {
             where: { role: 'ASSISTANT', type: 'RESULT' },
-            orderBy: { createAt: 'desc' },
+            orderBy: { createdAt: 'desc' },
             take: 1,
             include: { fragment: true },
           },
@@ -235,7 +242,9 @@ export const projectsRouter = createTRPCRouter({
       });
       if (!project) throw new TRPCError({ code: 'NOT_FOUND' });
       if (project.vercelProjectId) {
-        await deleteVercelProject(project.vercelProjectId).catch(() => {});
+        await deleteVercelProject(project.vercelProjectId).catch((e) => {
+          console.error(`Failed to delete Vercel project ${project.vercelProjectId} during unlink for project ${input.projectId}:`, e);
+        });
       }
       return prisma.project.update({
         where: { id: input.projectId },
@@ -322,7 +331,7 @@ export const projectsRouter = createTRPCRouter({
       // Step 4 — push existing fragment immediately so first build isn't lost
       const latestMessage = await prisma.message.findFirst({
         where: { projectId: input.projectId, role: 'ASSISTANT', type: 'RESULT' },
-        orderBy: { createAt: 'desc' },
+        orderBy: { createdAt: 'desc' },
         include: { fragment: true },
       });
       if (latestMessage?.fragment?.files) {
@@ -382,12 +391,16 @@ export const projectsRouter = createTRPCRouter({
           owner: project.repoOwner,
           repo: project.repoName,
           hookId: project.repoWebhookId,
-        }).catch(() => {});
+        }).catch((e) => {
+          console.error(`Failed to delete GitHub webhook during unbind for project ${input.projectId}:`, e);
+        });
       }
 
       // Remove Vercel project
       if (project.vercelProjectId) {
-        await deleteVercelProject(project.vercelProjectId).catch(() => {});
+        await deleteVercelProject(project.vercelProjectId).catch((e) => {
+          console.error(`Failed to delete Vercel project ${project.vercelProjectId} during unbind for project ${input.projectId}:`, e);
+        });
       }
 
       return prisma.project.update({
@@ -406,7 +419,9 @@ export const projectsRouter = createTRPCRouter({
       const project = await prisma.project.findUnique({ where: { id: input.projectId, userId: ctx.auth.userId } });
       if (!project) throw new TRPCError({ code: 'NOT_FOUND' });
       if (project.supabaseProjectId) {
-        await deleteSupabaseProject(project.supabaseProjectId).catch(() => {});
+        await deleteSupabaseProject(project.supabaseProjectId).catch((e) => {
+          console.error(`Failed to delete Supabase project ${project.supabaseProjectId} for project ${input.projectId}:`, e);
+        });
       }
       return prisma.project.update({
         where: { id: input.projectId },
@@ -435,7 +450,7 @@ export const projectsRouter = createTRPCRouter({
             include: {
               messages: {
                 where: { role: 'ASSISTANT', type: 'RESULT' },
-                orderBy: { createAt: 'desc' },
+                orderBy: { createdAt: 'desc' },
                 take: 1,
                 include: { fragment: true },
               },
@@ -647,7 +662,7 @@ export const projectsRouter = createTRPCRouter({
         where: { id: input.projectId, isPublic: true },
         include: {
           messages: {
-            orderBy: { createAt: 'asc' },
+            orderBy: { createdAt: 'asc' },
             include: { fragment: true },
           },
         },
@@ -749,7 +764,9 @@ export const projectsRouter = createTRPCRouter({
       if (!project) throw new TRPCError({ code: 'NOT_FOUND' });
 
       if (project.vercelProjectId && project.customDomain) {
-        await removeCustomDomain(project.vercelProjectId, project.customDomain).catch(() => {});
+        await removeCustomDomain(project.vercelProjectId, project.customDomain).catch((e) => {
+          console.error(`Failed to remove custom domain ${project.customDomain} from Vercel project ${project.vercelProjectId} for project ${input.projectId}:`, e);
+        });
       }
 
       return prisma.project.update({

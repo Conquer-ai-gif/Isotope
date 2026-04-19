@@ -94,7 +94,7 @@ export const VersionHistory = ({ projectId, activeFragment, onSelectFragment, on
                   )}
                 </div>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
-                  {format(message.createAt, 'MMM d, yyyy · HH:mm')}
+                  {format(message.createdAt, 'MMM d, yyyy · HH:mm')}
                 </p>
                 <p className="text-[11px] text-muted-foreground mt-0.5 truncate">
                   {message.content}

@@ -42,6 +42,10 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
             <Link
               key={href}
               href={href}
+              onClick={(e) => {
+                e.preventDefault()
+                window.location.href = href
+              }}
               className={cn(
                 'flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
                 pathname === href
@@ -56,7 +60,16 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
         </nav>
         <div className="p-4 border-t border-border">
           <p className="text-xs text-muted-foreground">Need help?</p>
-          <Link href="/feedback" className="text-xs text-primary hover:underline">Send us feedback →</Link>
+          <Link
+            href="/feedback"
+            onClick={(e) => {
+              e.preventDefault()
+              window.location.href = '/feedback'
+            }}
+            className="text-xs text-primary hover:underline"
+          >
+            Send us feedback →
+          </Link>
         </div>
       </aside>
 
@@ -74,7 +87,11 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
                 <Link
                   key={href}
                   href={href}
-                  onClick={() => setMobileOpen(false)}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setMobileOpen(false)
+                    window.location.href = href
+                  }}
                   className={cn(
                     'flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
                     pathname === href

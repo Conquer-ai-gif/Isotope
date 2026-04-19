@@ -38,7 +38,7 @@ export const usageRouter = createTRPCRouter({
       prisma.fragment.count({
         where: {
           message: { project: { userId } },
-          createAt: { gte: startOf7Days },
+          createdAt: { gte: startOf7Days },
         },
       }),
 
@@ -60,9 +60,9 @@ export const usageRouter = createTRPCRouter({
       prisma.fragment.findMany({
         where: {
           message: { project: { userId } },
-          createAt: { gte: startOf30Days },
+          createdAt: { gte: startOf30Days },
         },
-        select: { createAt: true },
+        select: { createdAt: true },
       }),
     ])
 
@@ -74,7 +74,7 @@ export const usageRouter = createTRPCRouter({
       buckets[key] = 0
     }
     for (const f of dailyActivity) {
-      const key = f.createAt.toISOString().split('T')[0]
+      const key = f.createdAt.toISOString().split('T')[0]
       if (buckets[key] !== undefined) buckets[key]++
     }
 

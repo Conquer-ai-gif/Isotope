@@ -281,7 +281,7 @@ export const workspaceRouter = createTRPCRouter({
         include: {
           messages: {
             where: { role: 'ASSISTANT', type: 'RESULT' },
-            orderBy: { createAt: 'desc' },
+            orderBy: { createdAt: 'desc' },
             take: 1,
             include: { fragment: true },
           },

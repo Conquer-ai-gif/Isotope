@@ -65,7 +65,7 @@ export const MessagesContainer = ({projectId,activeFragment,setActiveFragment,el
                         content={message.content}
                         role={message.role}
                         fragment={message.fragment}
-                        createdAt={message.createAt}
+                        createdAt={message.createdAt}
                         isActiveFragment={activeFragment?.id ===message.fragment?.id}
                         onFragmentClick={() =>setActiveFragment(message.fragment)}
                         type={message.type}

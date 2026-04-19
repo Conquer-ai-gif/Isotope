@@ -3,7 +3,7 @@ import * as Sentry from '@sentry/nextjs'
 import { prisma } from '@/lib/db'
 import { SANDBOX_TIMEOUT } from '@/inngest/types'
 
-const TEMPLATE_ID = 'lune-vibe-3'
+const TEMPLATE_ID = 'isotope-vibe'
 
 export interface SandboxManager {
   sandboxId: string
@@ -62,7 +62,7 @@ export async function restoreFilesIntoSandbox(
 ): Promise<{ restoredCount: number }> {
   const lastFragment = await prisma.fragment.findFirst({
     where: { message: { projectId } },
-    orderBy: { createAt: 'desc' },
+    orderBy: { createdAt: 'desc' },
   })
 
   if (!lastFragment?.files) return { restoredCount: 0 }

@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
 import { ChevronRightIcon, Code2Icon, RefreshCcwIcon, AlertCircleIcon, SparklesIcon } from 'lucide-react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { useTRPC } from '@/trpc/client'
 import { toast } from 'sonner'
@@ -120,6 +121,7 @@ const AssistantMessage = ({
   messageId, plan, planStatus,
 }: AssistantMessageProps) => {
   const trpc = useTRPC()
+  const router = useRouter()
   const queryClient = useQueryClient()
 
   const retryGeneration = useMutation(trpc.messages.create.mutationOptions({
@@ -127,7 +129,13 @@ const AssistantMessage = ({
       queryClient.invalidateQueries(trpc.messages.getMany.queryOptions({ projectId }))
       toast.success('Retrying generation...')
     },
-    onError: (e) => toast.error(e.message),
+    onError: (e) => {
+      if (e?.message?.includes('run out of credits') || e?.data?.code === 'TOO_MANY_REQUESTS') {
+        router.push('/pricing')
+      } else {
+        toast.error(e.message)
+      }
+    },
   }))
 
   return (

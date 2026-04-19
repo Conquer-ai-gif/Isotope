@@ -19,7 +19,10 @@ export const ProjectsList = () => {
   const trpc = useTRPC()
   const { user } = useUser()
   const queryClient = useQueryClient()
-  const { data: projects } = useQuery(trpc.projects.getMany.queryOptions())
+  const { data: projects } = useQuery({
+    ...trpc.projects.getMany.queryOptions(),
+    enabled: !!user,
+  })
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const deleteProject = useMutation(trpc.projects.delete.mutationOptions({

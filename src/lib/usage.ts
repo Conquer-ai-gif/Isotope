@@ -53,8 +53,15 @@ export async function consumeCredits(ownerUserId?: string): Promise<void> {
 
   const chargeId = ownerUserId ?? actorId
 
-  const credits = await prisma.credits.findUnique({ where: { userId: chargeId } })
-  if (!credits) throw new Error('Credits record not found')
+  let credits = await prisma.credits.findUnique({ where: { userId: chargeId } })
+  
+  // If credits record doesn't exist, initialize it (handles race condition with webhook)
+  if (!credits) {
+    await initCredits(chargeId)
+    credits = await prisma.credits.findUnique({ where: { userId: chargeId } })
+    if (!credits) throw new Error('Failed to initialize credits')
+  }
+  
   if (credits.balance < GENERATION_COST) throw new Error('Insufficient credits')
 
   await prisma.credits.update({

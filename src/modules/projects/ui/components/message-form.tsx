@@ -91,9 +91,11 @@ export const MessageForm = ({ projectId, elementContext, onElementContextUsed, s
         queryClient.invalidateQueries(trpc.usage.status.queryOptions())
       },
       onError: (error) => {
-        toast.error(error.message)
-        if (error.data?.code === 'TOO_MANY_REQUESTS') {
+        // Check if error is due to insufficient credits
+        if (error?.message?.includes('run out of credits') || error?.data?.code === 'TOO_MANY_REQUESTS') {
           router.push('/pricing')
+        } else {
+          toast.error(error.message)
         }
       },
     }),

@@ -26,15 +26,21 @@ export async function POST(req: Request) {
     const userId = event.data.id as string
 
     // Seed their credits row (5 free credits, 30-day reset cycle from today)
-    await initCredits(userId).catch(() => {})
+    await initCredits(userId).catch((e) => {
+      console.error(`Failed to initialize credits for user ${userId}:`, e);
+    });
 
     // Generate their referral code immediately so it's ready to share
-    await getOrCreateReferralCode(userId).catch(() => {})
+    await getOrCreateReferralCode(userId).catch((e) => {
+      console.error(`Failed to create referral code for user ${userId}:`, e);
+    });
 
     // Apply referral code if they signed up via a referral link
-    const referralCode = event.data.unsafe_metadata?.referralCode as string | undefined
+    const referralCode = event.data.unsafe_metadata?.referralCode as string | undefined;
     if (referralCode) {
-      await applyReferralCode(userId, referralCode).catch(() => {})
+      await applyReferralCode(userId, referralCode).catch((e) => {
+        console.error(`Failed to apply referral code ${referralCode} for user ${userId}:`, e);
+      });
     }
   }
 

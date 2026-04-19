@@ -34,7 +34,7 @@ async function detectErrors(sandboxId: string): Promise<string> {
     const result = await sandbox.commands.run(
       'npx tsc --noEmit 2>&1 | grep -E "error TS|Cannot find|is not assignable|does not exist" | head -20; ' +
         'cat /tmp/next-error.log 2>/dev/null | head -20 || true',
-      { timeout: 15000 },
+      { timeoutMs: 15000 },
     )
     return result.stdout.trim()
   } catch {

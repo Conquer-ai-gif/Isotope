@@ -40,7 +40,13 @@ function WorkspaceDashboard({ workspaceId }: { workspaceId: string }) {
       setProjectPrompt('')
       router.push(`/projects/${p.id}`)
     },
-    onError: (e) => toast.error(e.message),
+    onError: (e) => {
+      if (e?.message?.includes('run out of credits') || e?.data?.code === 'TOO_MANY_REQUESTS') {
+        router.push('/pricing')
+      } else {
+        toast.error(e.message)
+      }
+    },
   }))
 
   return (

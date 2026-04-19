@@ -52,7 +52,7 @@ function UsageContent() {
     date: format(new Date(d.date), 'MMM d'),
   }))
 
-  const resetDate = new Date(Date.now() + status.msBeforeNext)
+  const resetDate = status.nextReset
 
   return (
     <div className="space-y-6">
@@ -174,7 +174,7 @@ function UsageContent() {
           </div>
         ) : (
           <div className="divide-y">
-            {analytics.topProjects.map((p, i) => (
+            {analytics.topProjects.map((p: { id: string; name: string; createdAt: Date; updatedAt: Date; isPublic: boolean; vercelDeployUrl: string | null; _count: { messages: number } }, i: number) => (
               <div key={p.id} className="px-5 py-3 flex items-center gap-3 hover:bg-muted/30 transition-colors">
                 <span className="text-xs text-muted-foreground w-5 tabular-nums flex-shrink-0">{i + 1}</span>
                 <div className="flex-1 min-w-0">
