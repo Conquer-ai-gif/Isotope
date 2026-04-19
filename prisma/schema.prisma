@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../src/generated/prisma"
 }
 
@@ -21,7 +21,11 @@ model Workspace {
   invites  Invite[]
 }
 
-enum MemberRole { OWNER EDITOR VIEWER }
+enum MemberRole {
+  OWNER
+  EDITOR
+  VIEWER
+}
 
 model Member {
   id          String     @id @default(uuid())
@@ -86,10 +90,21 @@ model Project {
   tasks         Task[]
 }
 
-enum MessageRole { USER ASSISTANT }
-enum MessageType { RESULT ERROR }
+enum MessageRole {
+  USER
+  ASSISTANT
+}
 
-enum PlanStatus { pending approved rejected }
+enum MessageType {
+  RESULT
+  ERROR
+}
+
+enum PlanStatus {
+  pending
+  approved
+  rejected
+}
 
 model Message {
   id        String      @id @default(uuid())
@@ -99,7 +114,7 @@ model Message {
   imageUrl  String?
   plan      String?     // JSON plan generated before code execution
   planStatus PlanStatus? // pending | approved | rejected
-  createAt  DateTime    @default(now())
+  createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 
   projectId String
@@ -119,13 +134,17 @@ model Fragment {
   branchName  String?  // Git branch created for this generation e.g. luno/add-dark-mode-abc123
   branchMerged Boolean @default(false) // Whether branch has been merged to main
 
-  createAt  DateTime @default(now())
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 // ── Credit system ────────────────────────────────────────────────────────────
 
-enum Plan { free pro team }
+enum Plan {
+  free
+  pro
+  team
+}
 
 enum CreditEventReason {
   signup
@@ -174,7 +193,7 @@ model SyncConflict {
   id            String   @id @default(uuid())
   projectId     String
   filePath      String
-  lunoContent   String
+  isotopeContent String
   githubContent String
   resolvedBy    String?
   createdAt     DateTime @default(now())
@@ -184,8 +203,17 @@ model SyncConflict {
 
 // ── Feedback ─────────────────────────────────────────────────────────────────
 
-enum FeedbackType   { general bug feature }
-enum FeedbackStatus { new reviewed resolved }
+enum FeedbackType {
+  general
+  bug
+  feature
+}
+
+enum FeedbackStatus {
+  new
+  reviewed
+  resolved
+}
 
 model Feedback {
   id        String         @id @default(uuid())
@@ -259,7 +287,12 @@ model ReferralUse {
 
 // ── Changelog ─────────────────────────────────────────────────────────────────
 
-enum ChangelogType { feature improvement bugfix breaking }
+enum ChangelogType {
+  feature
+  improvement
+  bugfix
+  breaking
+}
 
 model ChangelogEntry {
   id          String        @id @default(uuid())
@@ -301,8 +334,18 @@ model GenerationEvent {
 
 // ── Task board ────────────────────────────────────────────────────────────────
 
-enum TaskStatus   { todo in_progress in_review done }
-enum TaskPriority { low medium high }
+enum TaskStatus {
+  todo
+  in_progress
+  in_review
+  done
+}
+
+enum TaskPriority {
+  low
+  medium
+  high
+}
 
 model Task {
   id          String       @id @default(uuid())

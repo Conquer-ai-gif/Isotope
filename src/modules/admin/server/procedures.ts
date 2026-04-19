@@ -1,16 +1,15 @@
 import { prisma } from '@/lib/db'
 import { clerkClient } from '@clerk/nextjs/server'
-import { baseProcedure, createTRPCRouter } from '@/trpc/init'
+import { adminProcedure, createTRPCRouter } from '@/trpc/init'
 import { z } from 'zod'
 
-// All admin procedures use baseProcedure — access control is handled
-// entirely at the middleware level (ADMIN_USER_IDS env var).
-// No userId check needed here since only admins reach this router.
+// All admin procedures use adminProcedure — access control is handled
+// at the TRPC procedure layer instead of only at the middleware layer.
 
 export const adminRouter = createTRPCRouter({
 
   // ── Overview stats ─────────────────────────────────────────────────────────
-  stats: baseProcedure.query(async () => {
+  stats: adminProcedure.query(async () => {
     const now = new Date()
     const startOfToday  = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     const startOf7Days  = new Date(now.getTime() - 7  * 24 * 60 * 60 * 1000)
@@ -39,7 +38,7 @@ export const adminRouter = createTRPCRouter({
           role: 'ASSISTANT',
           type: 'RESULT',
           fragment: { isNot: null },
-          createAt: { gte: startOf7Days },
+          createdAt: { gte: startOf7Days },
         },
       }),
       prisma.project.findMany({
@@ -71,7 +70,7 @@ export const adminRouter = createTRPCRouter({
   }),
 
   // ── Daily activity chart ───────────────────────────────────────────────────
-  dailyActivity: baseProcedure
+  dailyActivity: adminProcedure
     .input(z.object({ days: z.number().min(7).max(90).default(30) }))
     .query(async ({ input }) => {
       const since = new Date(Date.now() - input.days * 24 * 60 * 60 * 1000)
@@ -82,8 +81,8 @@ export const adminRouter = createTRPCRouter({
           select: { createdAt: true },
         }),
         prisma.fragment.findMany({
-          where: { createAt: { gte: since } },
-          select: { createAt: true },
+          where: { createdAt: { gte: since } },
+          select: { createdAt: true },
         }),
       ])
 
@@ -98,14 +97,14 @@ export const adminRouter = createTRPCRouter({
         if (buckets[key]) buckets[key].projects++
       }
       for (const f of fragments) {
-        const key = f.createAt.toISOString().split('T')[0]
+        const key = f.createdAt.toISOString().split('T')[0]
         if (buckets[key]) buckets[key].generations++
       }
       return Object.values(buckets)
     }),
 
   // ── Users table ────────────────────────────────────────────────────────────
-  users: baseProcedure
+  users: adminProcedure
     .input(z.object({
       page:  z.number().min(1).default(1),
       limit: z.number().min(1).max(100).default(20),
@@ -194,7 +193,7 @@ export const adminRouter = createTRPCRouter({
     }),
 
   // ── Top projects ───────────────────────────────────────────────────────────
-  topProjects: baseProcedure
+  topProjects: adminProcedure
     .input(z.object({ limit: z.number().min(1).max(50).default(10) }))
     .query(async ({ input }) => {
       return prisma.project.findMany({

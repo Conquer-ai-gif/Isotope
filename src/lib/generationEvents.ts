@@ -31,5 +31,7 @@ export function createDbEmitter(messageId: string): (event: ExecutionEvent) => v
  * Call after the SSE stream closes to keep the table lean.
  */
 export async function cleanupGenerationEvents(messageId: string): Promise<void> {
-  await prisma.generationEvent.deleteMany({ where: { messageId } }).catch(() => {})
+  await prisma.generationEvent.deleteMany({ where: { messageId } }).catch((e) => {
+    console.error(`Failed to cleanup generation events for message ${messageId}:`, e);
+  });
 }

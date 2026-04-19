@@ -20,8 +20,14 @@ const isPublicRoute = createRouteMatcher([
 ])
 
 const isAdminRoute = createRouteMatcher(['/admin(.*)'])
+const isTRPCRoute = createRouteMatcher(['/api/trpc(.*)'])
 
 export default clerkMiddleware(async (auth, req) => {
+  // Allow tRPC to enforce auth at the procedure level.
+  if (isTRPCRoute(req)) {
+    return NextResponse.next()
+  }
+
   // Admin route — check user ID against allowlist
   if (isAdminRoute(req)) {
     const { userId } = await auth()

@@ -1,3 +1,5 @@
+'use client'
+
 import { CreditCardIcon } from 'lucide-react'
 import { DocsCallout } from '@/components/docs/docs-callout'
 import { CreditCalculator } from '@/components/docs/credit-calculator'

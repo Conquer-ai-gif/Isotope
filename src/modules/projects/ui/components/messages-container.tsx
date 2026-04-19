@@ -83,10 +83,42 @@ export const MessagesContainer = ({
         />
       ))}
 
-      {/* Live progress panel — replaces the fake spinner while generation runs */}
-      {isLastMessageUser && (
-        <GenerationProgress messageId={lastMessage.id} />
-      )}
+    return(
+        <div className='flex flex-col flex-1 min-h-0'>
+            <div  className='flex-1 min-h-0 overflow-y-auto'>
+              <div className="pt-2 pr-1">
+                {messages.map((message)=>(
+                    <MessageCard
+                        key={message.id}
+                        content={message.content}
+                        role={message.role}
+                        fragment={message.fragment}
+                        createdAt={message.createdAt}
+                        isActiveFragment={activeFragment?.id ===message.fragment?.id}
+                        onFragmentClick={() =>setActiveFragment(message.fragment)}
+                        type={message.type}
+                        projectId={projectId}
+                        imageUrl={message.imageUrl}
+                        isLatest={message.id === lastAssistantResultId}
+                        onSuggestionSelect={onSuggestionSelect}
+                        messageId={message.id}
+                        plan={message.plan}
+                        planStatus={message.planStatus}
+                    />
+                ))}
+                 {isLastMessageUser && <MessageLoading/>}
+                <div ref={bottomRef}/>
+              </div>
+            </div>
+             <div>
+            <div className="relative p-3 pt-1">
+                <div className="absolute -top-6 left-0 right-0 bg-gradient-to-b from-transparent to-background/70 pointer-events-none"/>
+                <MessageForm projectId={projectId} elementContext={elementContext} onElementContextUsed={onElementContextUsed} suggestionPrompt={suggestionPrompt} onSuggestionUsed={onSuggestionUsed} />
+            </div>
+            </div>
+        </div>
+    )
+}
 
       <div ref={bottomRef} />
 

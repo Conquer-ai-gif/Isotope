@@ -15,7 +15,6 @@ import {Form,FormField} from '@/components/ui/form'
 import { useRouter } from 'next/navigation';
 import { PROJECT_TEMPLATES } from '../../constants';
 import { useClerk } from '@clerk/nextjs';
-import { FigmaImportButton } from '@/components/figma-import';
 
 
 
@@ -54,9 +53,11 @@ export const ProjectForm=()=>{
             // toast.success('Message created successfully');
         },
         onError:(error)=>{
-            toast.error(error.message);
-            if(error?.data?.code === 'TOO_MANY_REQUESTS'){
+            // Check if error is due to insufficient credits
+            if(error?.message?.includes('run out of credits') || error?.data?.code === 'TOO_MANY_REQUESTS'){
                 router.push('/pricing');
+            } else {
+                toast.error(error.message);
             }
         }
     }));
@@ -133,9 +134,7 @@ export const ProjectForm=()=>{
                     </Button> 
                 </div>
             </form>
-            <div className="flex justify-center">
-                <FigmaImportButton />
-            </div>
+
             <div className="flex flex-wrap justify-center gap-2 hidden md:flex max-w-3xl">
                 {PROJECT_TEMPLATES.slice(0, 6).map((template) => (
                     <Button

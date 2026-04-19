@@ -14,6 +14,7 @@ import {
   BellIcon, Loader2Icon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import type { ChangelogEntry } from '@prisma/client'
 
 const TYPE_CONFIG = {
   feature:     { label: 'New Feature',  icon: RocketIcon,       colour: 'bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20' },
@@ -26,10 +27,10 @@ type EntryType = keyof typeof TYPE_CONFIG
 
 function ChangelogEntries() {
   const trpc = useTRPC()
-  const { data: entries } = useSuspenseQuery(trpc.changelog.getPublished.queryOptions())
+  const { data: entries } = useSuspenseQuery(trpc.changelog.getPublished.queryOptions()) as { data: ChangelogEntry[] }
   const [filter, setFilter] = useState<EntryType | 'all'>('all')
 
-  const filtered = filter === 'all' ? entries : entries.filter((e: any) => e.type === filter)
+  const filtered = filter === 'all' ? entries : entries.filter((e: ChangelogEntry) => e.type === filter)
 
   if (entries.length === 0) {
     return (

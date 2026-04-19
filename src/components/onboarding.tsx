@@ -41,7 +41,10 @@ const ONBOARDING_KEY = 'isotope_onboarding_complete'
 export function Onboarding() {
   const { user, isLoaded } = useUser()
   const trpc = useTRPC()
-  const { data: projects } = useQuery(trpc.projects.getMany.queryOptions())
+  const { data: projects } = useQuery({
+    ...trpc.projects.getMany.queryOptions(),
+    enabled: isLoaded && !!user,
+  })
   const [step, setStep] = useState(0)
   const [visible, setVisible] = useState(false)
 

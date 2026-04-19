@@ -1,3 +1,5 @@
+'use client'
+
 import { GithubIcon } from 'lucide-react'
 import { DocsCallout } from '@/components/docs/docs-callout'
 import { DocsSteps } from '@/components/docs/docs-steps'
