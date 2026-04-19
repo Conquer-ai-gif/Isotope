@@ -1,59 +1,87 @@
 'use client'
 
-
 import { useTRPC } from "@/trpc/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { MessageCard } from "./message-card";
 import { MessageForm } from "./message-form";
 import { useEffect, useRef } from "react";
 import { Fragment } from "@/generated/prisma/client";
-import { MessageLoading } from "./message-loading";
-
+import { GenerationProgress } from "@/components/generation-progress";
 
 interface Props {
-    projectId: string;
-    activeFragment:Fragment | null;
-    setActiveFragment:(fragment:Fragment | null) => void;
-    elementContext?: string | null;
-    onElementContextUsed?: () => void;
-    onSuggestionSelect?: (prompt: string) => void;
-    suggestionPrompt?: string | null;
-    onSuggestionUsed?: () => void;
+  projectId: string;
+  activeFragment: Fragment | null;
+  setActiveFragment: (fragment: Fragment | null) => void;
+  elementContext?: string | null;
+  onElementContextUsed?: () => void;
+  onSuggestionSelect?: (prompt: string) => void;
+  suggestionPrompt?: string | null;
+  onSuggestionUsed?: () => void;
 }
 
-export const MessagesContainer = ({projectId,activeFragment,setActiveFragment,elementContext,onElementContextUsed,onSuggestionSelect,suggestionPrompt,onSuggestionUsed}:Props)=>{
-       const trpc= useTRPC()
-       const bottomRef = useRef<HTMLDivElement>(null);
-       const lastAssistantMessageIdRef = useRef<string | null>(null)
+export const MessagesContainer = ({
+  projectId,
+  activeFragment,
+  setActiveFragment,
+  elementContext,
+  onElementContextUsed,
+  onSuggestionSelect,
+  suggestionPrompt,
+  onSuggestionUsed,
+}: Props) => {
+  const trpc = useTRPC()
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const lastAssistantMessageIdRef = useRef<string | null>(null)
 
-      const {data:messages}=useSuspenseQuery(trpc.messages.getMany.queryOptions({
-            projectId:projectId,
-        },{
-            refetchInterval: 2000
-        }))
+  const { data: messages } = useSuspenseQuery(trpc.messages.getMany.queryOptions({
+    projectId: projectId,
+  }, {
+    refetchInterval: 2000
+  }))
 
-     useEffect(()=>{
-           const lastAssistantMessage =messages.findLast(
-                (message)=> message.role ==='ASSISTANT'
-            );
+  useEffect(() => {
+    const lastAssistantMessage = messages.findLast(
+      (message) => message.role === 'ASSISTANT'
+    );
 
-              if(
-                lastAssistantMessage?.fragment && lastAssistantMessage.id !== lastAssistantMessageIdRef.current
-            ){
-                setActiveFragment(lastAssistantMessage.fragment);
-                lastAssistantMessageIdRef.current =lastAssistantMessage.id
-            }
+    if (
+      lastAssistantMessage?.fragment && lastAssistantMessage.id !== lastAssistantMessageIdRef.current
+    ) {
+      setActiveFragment(lastAssistantMessage.fragment);
+      lastAssistantMessageIdRef.current = lastAssistantMessage.id
+    }
+  }, [messages, setActiveFragment])
 
-     },[messages,setActiveFragment])
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView();
+  }, [messages.length]);
 
-      useEffect(() => {
-            bottomRef.current?.scrollIntoView();
-        }, [messages.length]);
+  const lastMessage = messages[messages.length - 1]
+  const isLastMessageUser = lastMessage?.role === 'USER';
+  const lastAssistantResultId = [...messages].reverse()
+    .find((m) => m.role === 'ASSISTANT' && m.type === 'RESULT')?.id;
 
-        const lastMessage =messages[messages.length - 1]
-        const isLastMessageUser = lastMessage?.role ==='USER';
-        const lastAssistantResultId = [...messages].reverse()
-          .find((m) => m.role === 'ASSISTANT' && m.type === 'RESULT')?.id;
+  return (
+    <div>
+      {messages.map((message) => (
+        <MessageCard
+          key={message.id}
+          role={message.role}
+          content={message.content}
+          createdAt={message.createAt}
+          fragment={message.fragment}
+          isActiveFragment={activeFragment?.id === message.fragment?.id}
+          onFragmentClick={(f) => setActiveFragment(f)}
+          type={message.type}
+          projectId={projectId}
+          imageUrl={message.imageUrl}
+          isLatest={message.id === lastAssistantResultId}
+          onSuggestionSelect={onSuggestionSelect}
+          messageId={message.id}
+          plan={message.plan}
+          planStatus={message.planStatus}
+        />
+      ))}
 
     return(
         <div className='flex flex-col flex-1 min-h-0'>
@@ -92,3 +120,15 @@ export const MessagesContainer = ({projectId,activeFragment,setActiveFragment,el
     )
 }
 
+      <div ref={bottomRef} />
+
+      <MessageForm
+        projectId={projectId}
+        elementContext={elementContext}
+        onElementContextUsed={onElementContextUsed}
+        suggestionPrompt={suggestionPrompt}
+        onSuggestionUsed={onSuggestionUsed}
+      />
+    </div>
+  )
+}
